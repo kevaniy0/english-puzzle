@@ -1,0 +1,48 @@
+
+.login_section{
+    max-width: 500px;
+    padding: 100px;
+    margin: 0 auto;
+    font-family: "Acme-Regular", sans-serif;
+    color: #333;
+    .login_title{
+        font-size: 28px;
+        text-align: center;
+    }
+    .login_label{
+        font-size: 18px;
+        color: grey;
+    }
+    .login_input {
+        font-family: inherit;
+        font-size: 14px;
+        height: 35px;
+        text-indent: 10px;
+        outline: none;
+        border-radius: 0;
+        border: 1px solid black;
+        &:focus{
+            border-color: green;
+        }
+        &:last-of-type{
+            margin-bottom: 20px;
+        }
+    }
+    .login_btn {
+        width: max-content;
+        margin: 0 auto; 
+        font-family: inherit;
+        font-size: 20px;
+        border: 1px solid grey;
+        padding: 3px 10px;
+        background-color: transparent;
+        cursor: default;
+    }
+}
+
+.login_form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
