@@ -17,32 +17,54 @@
         font-family: inherit;
         font-size: 14px;
         height: 35px;
-        text-indent: 10px;
+        text-indent: 17px;
         outline: none;
         border-radius: 0;
         border: 1px solid black;
-        &:focus{
-            border-color: green;
+        &-valid{
+            background-image: url('../../../assets/img/validField.png');
+            background-repeat: no-repeat;
+            background-position: 2px center;
+            background-size: 15px;
         }
-        &:last-of-type{
-            margin-bottom: 20px;
+        &-invalid{
+            background-image: url('../../../assets/img/invalidField.png');
+            background-repeat: no-repeat;
+            background-position: 2px center;
+            background-size: 15px;
         }
+        
     }
     .login_btn {
         width: max-content;
         margin: 0 auto; 
         font-family: inherit;
         font-size: 20px;
-        border: 1px solid grey;
+        border: 1px solid green;
+        color: black;
         padding: 3px 10px;
         background-color: transparent;
-        cursor: default;
+        cursor: pointer;
+        transition: all 0.5s ease;
+        &:disabled{
+            border: 1px solid grey;     
+            color: grey;
+            cursor: default;
+        }
     }
 }
 
 .login_form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 2px;
+    .input_span{
+        display: block;
+        color: red; 
+        &:last-of-type{
+            margin-bottom: 20px;
+        } 
+    }
+
 }
 
