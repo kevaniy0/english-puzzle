@@ -26,6 +26,29 @@ const INPUT_LAST_NAME: ElementParams<'input'> = {
     className: ['login_input', 'login_input_last-name'],
 };
 
+const SPAN_INPUT_NAME: ElementParams<'span'> = {
+    tag: 'span',
+    className: ['input_span', 'input-span_name'],
+    textContent: '\u00A0',
+};
+
+const SPAN_INPUT_LAST_NAME: ElementParams<'span'> = {
+    tag: 'span',
+    className: ['input_span', 'input-span_last-name'],
+    textContent: '\u00A0',
+};
+
 const BTN: ElementParams<'button'> = { tag: 'button', className: ['login_btn', 'btn'], textContent: 'Login' };
 
-export { FORM_PARAMS, PAGE, TITLE, LABEL_NAME, LABEL_LAST_NAME, INPUT_NAME, INPUT_LAST_NAME, BTN };
+export {
+    FORM_PARAMS,
+    PAGE,
+    TITLE,
+    LABEL_NAME,
+    LABEL_LAST_NAME,
+    INPUT_NAME,
+    INPUT_LAST_NAME,
+    SPAN_INPUT_NAME,
+    SPAN_INPUT_LAST_NAME,
+    BTN,
+};

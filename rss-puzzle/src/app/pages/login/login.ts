@@ -23,12 +23,19 @@ class LoginPage extends Page<'section'> {
         const labelLastName = FormCreater.createLabel(LOGIN.LABEL_LAST_NAME);
 
         const inputName = FormCreater.createInput(LOGIN.INPUT_NAME, true);
+        const spanName = FormCreater.createValidateError(LOGIN.SPAN_INPUT_NAME);
+        FormCreater.validateInput(inputName, spanName);
+
         const inputLastName = FormCreater.createInput(LOGIN.INPUT_LAST_NAME, true);
+        const spanLastName = FormCreater.createValidateError(LOGIN.SPAN_INPUT_LAST_NAME);
+        FormCreater.validateInput(inputLastName, spanLastName);
 
         const loginBtn = new ElementCreater(LOGIN.BTN).getElement();
         loginBtn.setAttribute('disabled', 'true');
 
-        form.append(labelName, inputName, labelLastName, inputLastName, loginBtn);
+        FormCreater.checkButtonStatement(inputName, inputLastName, loginBtn);
+
+        form.append(labelName, inputName, spanName, labelLastName, inputLastName, spanLastName, loginBtn);
         return form;
     }
 }
