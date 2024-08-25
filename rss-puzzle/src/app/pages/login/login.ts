@@ -34,6 +34,7 @@ class LoginPage extends Page<'section'> {
         loginBtn.setAttribute('disabled', 'true');
 
         FormCreater.checkButtonStatement(inputName, inputLastName, loginBtn);
+        FormCreater.sendForm(inputName, inputLastName, loginBtn);
 
         form.append(labelName, inputName, spanName, labelLastName, inputLastName, spanLastName, loginBtn);
         return form;

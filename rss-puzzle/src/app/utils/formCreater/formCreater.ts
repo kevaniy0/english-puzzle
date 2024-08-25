@@ -88,6 +88,18 @@ class FormCreater {
         inputLastName.addEventListener('input', changeStatement);
     }
 
+    public static sendForm(
+        inputName: HTMLInputElement,
+        inputSecondName: HTMLInputElement,
+        btn: HTMLButtonElement
+    ): void {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.setItem('name', inputName.value);
+            localStorage.setItem('secondName', inputSecondName.value);
+        });
+    }
+
     public getElement() {
         return this.form;
     }
