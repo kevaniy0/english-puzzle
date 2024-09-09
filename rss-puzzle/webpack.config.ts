@@ -3,7 +3,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import webpack from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import type { Configuration as DevServerConfiguration } from 'webpack-dev-server';
-// const CopyPlugin = require("copy-webpack-plugin");
+import CopyPlugin from 'copy-webpack-plugin';
 
 type Mode = 'development' | 'production';
 
@@ -104,12 +104,12 @@ export default (env: EnvVariables) => {
             new MiniCssExtractPlugin({
                 filename: 'style.css',
             }),
-            // new CopyPlugin({
-            //   patterns: [
-            //     { from: "src/assets", to: "assets" },
-            //     { from: "src/fonts", to: "fonts" }, // example
-            //   ],
-            // }),
+            new CopyPlugin({
+                patterns: [
+                    { from: 'src/assets/img', to: 'assets/img' },
+                    { from: 'src/assets/fonts', to: 'assets/fonts' }, // example
+                ],
+            }),
         ],
 
         performance: {

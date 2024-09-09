@@ -1,17 +1,21 @@
 
 .login_section{
-    max-width: 500px;
-    padding: 100px;
+    max-width: 400px;
+    padding: 50px 70px;
     margin: 0 auto;
     font-family: "Acme-Regular", sans-serif;
     color: #333;
+    background-color: white;
+    border: 1px solid #1b1b1b;
+    border-radius: 20px;
+    box-shadow: 0px 0px 45px -17px white;
     .login_title{
         font-size: 28px;
         text-align: center;
     }
     .login_label{
         font-size: 18px;
-        color: grey;
+        color: black;
     }
     .login_input {
         font-family: inherit;
@@ -19,16 +23,16 @@
         height: 35px;
         text-indent: 17px;
         outline: none;
-        border-radius: 0;
+        border-radius: 3px;
         border: 1px solid black;
         &-valid{
-            background-image: url('../../../assets/img/validField.png');
+            background-image: url('../../../../assets/img/validField.png');
             background-repeat: no-repeat;
             background-position: 2px center;
             background-size: 15px;
         }
         &-invalid{
-            background-image: url('../../../assets/img/invalidField.png');
+            background-image: url('../../../../assets/img/invalidField.png');
             background-repeat: no-repeat;
             background-position: 2px center;
             background-size: 15px;
@@ -44,14 +48,33 @@
         color: black;
         padding: 3px 10px;
         background-color: transparent;
+        border-radius: 5px;
         cursor: pointer;
         transition: all 0.5s ease;
+        
         &:disabled{
             border: 1px solid grey;     
             color: grey;
             cursor: default;
         }
+        &:enabled{
+            animation: activeBtn 1s  1;
+        }
     }
+    @keyframes activeBtn {
+        0% {
+
+          scale: 100% 100%;
+        }
+      
+        50% {
+
+          scale: 110% 110%;
+        }
+        100% {
+            scale: 100% 100%;
+        }
+      }
 }
 
 .login_form {
