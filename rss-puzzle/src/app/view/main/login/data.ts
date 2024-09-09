@@ -1,4 +1,4 @@
-import { ElementParams } from '../../utils/elementCreater/elementCreater';
+import { ElementParams } from '../../../utils/elementCreator/elementCreator';
 
 const FORM_PARAMS: ElementParams<'form'> = {
     tag: 'form',
