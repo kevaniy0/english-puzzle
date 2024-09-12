@@ -89,8 +89,8 @@ class PopupCreator {
     }
 
     confirmLogout(logout: ElementCreator<'a'>) {
-        localStorage.removeItem('name');
-        localStorage.removeItem('lastName');
+        localStorage.removeItem('user_name_english_puzzle');
+        localStorage.removeItem('user_last_name_english_puzzle');
         this.getElement().hidden = true;
         logout!.getElement().style.display = 'none';
     }

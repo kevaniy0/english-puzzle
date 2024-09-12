@@ -68,7 +68,7 @@ class App {
         ];
     }
     public setContentPages(view: View) {
-        if (localStorage.getItem('name') && localStorage.getItem('lastName')) {
+        if (localStorage.getItem('user_name_english_puzzle') && localStorage.getItem('user_last_name_english_puzzle')) {
             this.header!.logout!.getElement().style.display = '';
         } else {
             this.header!.logout!.getElement().style.display = 'none';
@@ -79,8 +79,8 @@ class App {
         }
     }
     public checkUserExistence(): boolean {
-        const name = localStorage.getItem('name');
-        const lastName = localStorage.getItem('lastName');
+        const name = localStorage.getItem('user_name_english_puzzle');
+        const lastName = localStorage.getItem('user_last_name_english_puzzle');
         if (name && lastName) return true;
         return false;
     }

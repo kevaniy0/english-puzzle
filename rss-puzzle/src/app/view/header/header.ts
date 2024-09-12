@@ -62,7 +62,7 @@ class Header extends View {
             popup.getElement().hidden = false;
         });
 
-        if (localStorage.getItem('name') && localStorage.getItem('lastName')) {
+        if (localStorage.getItem('user_name_english_puzzle') && localStorage.getItem('user_last_name_english_puzzle')) {
             logout.getElement().style.display = '';
         } else {
             logout.getElement().style.display = 'none';

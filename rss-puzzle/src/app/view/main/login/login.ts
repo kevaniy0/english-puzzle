@@ -35,8 +35,8 @@ class LoginView extends View {
             const name = inputName.getElement().value;
             const lastName = inputLastName.getElement().value;
 
-            localStorage.setItem('name', name);
-            localStorage.setItem('lastName', lastName);
+            localStorage.setItem('user_name_english_puzzle', name);
+            localStorage.setItem('user_last_name_english_puzzle', lastName);
             this.router.navigate('greeting');
         });
         form.checkButtonStatus(inputName.getElement(), inputLastName.getElement(), loginBtn.getElement());
