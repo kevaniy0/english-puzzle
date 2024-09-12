@@ -15,6 +15,28 @@ body{
 .container{
     max-width: 1024px;
     margin: 0 auto;
+    background-image: url('./assets/img/bg-puzzle-blue.png'), url('./assets/img/pg-puzzle-red.png');
+    background-repeat: no-repeat;
+    background-size: 120px 120px, 120px 120px;
+    animation: back-puzzle 30s infinite linear;
+    @keyframes back-puzzle {
+        0% {
+            background-position: top center, bottom center;
+            
+        }
+        25% {
+            background-position: right center, left center;
+        }
+        50% {
+            background-position: bottom center, top center;
+        }
+        75% {
+            background-position: left center, right center;
+        }
+        100% {
+            background-position: top center , bottom center ;
+        }
+    }
 }
 
 .btn{

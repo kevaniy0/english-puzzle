@@ -63,7 +63,7 @@ class PopupCreator {
 
             if (target.classList.contains('popup-btn_yes')) {
                 this.confirmLogout(logout);
-                this.router.navigate('login'); // TODO Раскомитить после создания навигации
+                this.router.navigate('login');
             } else if (target.classList.contains('popup-btn_no') || target.classList.contains('logout-popup')) {
                 popup.getElement().hidden = true;
             }

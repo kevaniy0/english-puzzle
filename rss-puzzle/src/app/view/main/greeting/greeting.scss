@@ -1,0 +1,34 @@
+.section-greeting {
+    text-align: center;
+    color: white;
+    .greeting-title {
+        font-family: 'Acme-Regular';
+        letter-spacing: 2px;
+        font-size: 30px;
+    }
+    .greeting-description{
+        font-family: 'Acme-Regular';
+        font-size: 22px;
+        letter-spacing: 2px;
+    }
+    .wrapper-interaction-block{
+        display: grid;
+        justify-content: center;
+        gap: 140px;
+        grid-template-areas: 
+        'learn puzzle puzzle'
+        'learn user user'
+        'learn start start'
+        ;
+        .greeting-lern-pic {
+            height: 500px;
+            grid-area: learn;
+        }
+        .greeting-puzzle-pic{   
+            grid-area: puzzle;
+            height: 130px;
+        }
+
+    }
+
+}
