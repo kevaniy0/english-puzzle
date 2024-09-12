@@ -6,6 +6,7 @@ import { Route } from './router/router';
 import { pages } from './router/pages';
 import View from './view/view';
 import LoginView from './view/main/login/login';
+import GreetingView from './view/main/greeting/greeting';
 
 class App {
     private container: ElementCreator<'div'>;
@@ -31,11 +32,10 @@ class App {
         container.append(this.header.getViewHtml());
 
         if (this.checkUserExistence()) {
-            this.main = new MainView(new LoginView(this.router));
+            this.main = new MainView(new GreetingView(this.router));
         } else {
-            // this.main = new MainView(new GreetingView());
+            this.main = new MainView(new LoginView(this.router));
         }
-        this.main = new MainView(new LoginView(this.router)); // TODO Убрать после создания GreetingView
         container.append(this.main.getViewHtml());
     }
 
@@ -50,7 +50,7 @@ class App {
             {
                 path: pages.GREETING,
                 callback: () => {
-                    // this.setContentPages(new GreetingView());
+                    this.setContentPages(new GreetingView(this.router));
                 },
             },
             {
