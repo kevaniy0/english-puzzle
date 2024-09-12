@@ -27,10 +27,12 @@ class GreetingView extends View {
         learnImg.getElement().src = './assets/img/learn-img.png';
         const puzzleImg = new ElementCreator(GREETING.imgPuzzle);
         puzzleImg.getElement().src = './assets/img/puzzle-alph.png';
-        // const startButton = new ElementCreator(greetingStartButton);
+        const startButton = this.createStartButton();
         const userBlock = this.displayUserGreeting();
 
-        wrapper.getElement().append(learnImg.getElement(), puzzleImg.getElement(), userBlock.getElement());
+        wrapper
+            .getElement()
+            .append(learnImg.getElement(), puzzleImg.getElement(), userBlock.getElement(), startButton.getElement());
         return wrapper;
     }
 
@@ -50,6 +52,13 @@ class GreetingView extends View {
         userTitle.getElement().innerHTML = `Hello!<br><span class="user-greeting__span">${userFullName}<br></span> Best of luck on your learning journey!`;
         userBlock.getElement().append(userTitle.getElement());
         return userBlock;
+    }
+    private createStartButton(): ElementCreator<'a'> {
+        const btn = new ElementCreator(GREETING.startButton);
+        btn.getElement().addEventListener('click', () => {
+            this.router.navigate('game');
+        });
+        return btn;
     }
 
     configureView(): void {

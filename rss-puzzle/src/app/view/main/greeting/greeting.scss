@@ -13,12 +13,12 @@
     }
     .interaction-block{
         display: grid;
-        justify-content: center;
-        gap: 10px 120px;
+        align-items: center;
+        justify-items: center;
         grid-template-areas: 
-        'learn puzzle puzzle'
-        'learn user user'
-        'learn start start'
+        'learn puzzle'
+        'learn user'
+        'learn start'
         ;
         .greeting-lern-pic {
             height: 500px;
@@ -27,7 +27,25 @@
         .greeting-puzzle-pic{   
             grid-area: puzzle;
             height: 130px;
-            margin-left: 25px;
+        }
+        .greeting-start-button{
+            grid-area: start;
+            border: 3px solid rgb(42, 42, 44);
+            border-radius: 10px;
+            padding: 10px 30px;
+            width: max-content;
+            height: max-content;
+            font-family: 'Acme-Regular';
+            font-size: 22px;
+            background-color: white;
+            color: #1b1b1b;
+            transition: all 0.2s linear;
+            box-shadow: 0px 0px 28px 8px rgba(249, 251, 253, 0.2);
+            &:hover{
+                cursor: pointer;
+                transform: scale(1.1);
+                box-shadow: 0px 0px 28px 8px rgba(249, 251, 253, 0.2);
+            }
         }
 
         .user-greeting{
