@@ -1,3 +1,4 @@
+@import '~normalize.css';
 @import url(./assets/fonts/fonts.scss);
 
 * {
@@ -7,12 +8,12 @@
 body{
     min-height: 100vh;
     background-color: #1b1b1b;
-
     background-repeat: no-repeat;
     background-size: cover;
 }
 
 .container{
+    min-height: 100vh;
     max-width: 1024px;
     margin: 0 auto;
     background-image: url('./assets/img/bg-puzzle-blue.png'), url('./assets/img/pg-puzzle-red.png');
