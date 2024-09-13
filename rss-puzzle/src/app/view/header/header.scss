@@ -71,9 +71,12 @@
             color: white;
             background-color: rgb(29, 58, 217);
             transition: background-color 0.2s ease;
-            &:hover{
-                background-color: rgb(53, 77, 208);
+            @media (hover: hover){
+                &:hover{
+                    background-color: rgb(53, 77, 208);
+                }
             }
+            
         }
     }
     
