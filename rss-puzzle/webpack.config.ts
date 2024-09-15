@@ -108,6 +108,7 @@ export default (env: EnvVariables) => {
                 patterns: [
                     { from: 'src/assets/img', to: 'assets/img' },
                     { from: 'src/assets/fonts', to: 'assets/fonts' }, // example
+                    { from: 'src/data', to: 'data' },
                 ],
             }),
         ],

@@ -1,0 +1,45 @@
+.game-section{
+    
+    .game-field{
+        border: 1px solid green;
+        width: 70%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        &__row{
+            display: flex;
+            height: 40px;
+            border: 1px solid gold;
+            
+        }
+        &__source-words{
+            width: 100%;
+            border: 1px solid white;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 40px auto;
+            
+        }
+        .source-word{
+            width: max-content;
+            padding: 5px;
+            cursor: pointer;
+            color: white;
+            border: 1px solid wheat;
+            font-size: 20px;
+            text-align: center;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+    }
+}
+
+
+
+  .fade-out {
+    opacity: 0; /* Эффект исчезновения */
+  }
+  
+  .fade-in {
+    opacity: 1; /* Эффект появления */
+  }

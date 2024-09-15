@@ -7,6 +7,7 @@ import { pages } from './router/pages';
 import View from './view/view';
 import LoginView from './view/main/login/login';
 import GreetingView from './view/main/greeting/greeting';
+import GameView from './view/main/game/game';
 
 class App {
     private container: ElementCreator<'div'>;
@@ -56,7 +57,7 @@ class App {
             {
                 path: pages.GAME,
                 callback: () => {
-                    // this.setContentPages(new GameView());
+                    this.setContentPages(new GameView(this.router));
                 },
             },
             {
