@@ -15,7 +15,9 @@ class MainView extends View {
     configureView(view: View): void {
         const element = view.getViewHtml();
         const main = this.view.getElement();
-        main.innerHTML = '';
+        while (main.firstElementChild) {
+            main.firstElementChild.remove();
+        }
         main.classList.add('smooth-transition');
         setTimeout(() => {
             main.classList.remove('smooth-transition');
