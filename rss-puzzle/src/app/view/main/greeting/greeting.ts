@@ -49,7 +49,12 @@ class GreetingView extends View {
 
         const userFullName = this.getUserInfo().join(' ');
 
-        userTitle.getElement().innerHTML = `Hello!<br><span class="user-greeting__span">${userFullName}<br></span> Best of luck on your learning journey!`;
+        userTitle
+            .getElement()
+            .insertAdjacentHTML(
+                'afterbegin',
+                `Hello!<br><span class="user-greeting__span">${userFullName}<br></span> Best of luck on your learning journey!`
+            );
         userBlock.getElement().append(userTitle.getElement());
         return userBlock;
     }
