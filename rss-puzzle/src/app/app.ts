@@ -69,15 +69,7 @@ class App {
         ];
     }
     public setContentPages(view: View) {
-        if (localStorage.getItem('user_name_english_puzzle') && localStorage.getItem('user_last_name_english_puzzle')) {
-            this.header!.logout!.getElement().style.display = '';
-        } else {
-            this.header!.logout!.getElement().style.display = 'none';
-        }
-
-        if (this.main) {
-            this.main.configureView(view);
-        }
+        if (this.main) this.main.configureView(view);
     }
     public checkUserExistence(): boolean {
         const name = localStorage.getItem('user_name_english_puzzle');

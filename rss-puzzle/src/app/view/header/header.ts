@@ -5,9 +5,9 @@ import View from '../view';
 import * as HEADER_DATA from './header-data';
 import Router from '../../router/router';
 import PopupCreator from '../../utils/popupCreator/popupCreator';
+import eventEmitter from '../../utils/eventEmitter/eventEmitter';
 class Header extends View {
     router: Router;
-    logout: ElementCreator<'a'> | null;
     constructor(router: Router) {
         const params: ElementParams<'header'> = {
             tag: 'header',
@@ -15,7 +15,6 @@ class Header extends View {
         };
         super(params);
         this.router = router;
-        this.logout = null;
         this.configureView();
     }
 
@@ -51,7 +50,12 @@ class Header extends View {
         this.view.getElement().append(title.getElement());
 
         const logout = this.createLogout(HEADER_DATA.logoutParams);
-        this.logout = logout;
+        eventEmitter.subscribe('showLogoutButton', () => {
+            logout.getElement().style.display = 'block';
+        });
+        eventEmitter.subscribe('hideLogoutButton', () => {
+            logout.getElement().style.display = 'none';
+        });
 
         const popup = this.createPopup(logout);
         this.view.getElement().append(popup.getElement());
@@ -61,12 +65,6 @@ class Header extends View {
         logout.getElement().addEventListener('click', () => {
             popup.getElement().hidden = false;
         });
-
-        if (localStorage.getItem('user_name_english_puzzle') && localStorage.getItem('user_last_name_english_puzzle')) {
-            logout.getElement().style.display = '';
-        } else {
-            logout.getElement().style.display = 'none';
-        }
     }
 }
 

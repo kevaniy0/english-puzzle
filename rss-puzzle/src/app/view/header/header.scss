@@ -12,6 +12,7 @@
 
     .logout{
         cursor: pointer;
+        display: none;
         width: 24px;
         height: 24px;
         background-image: url('../../../assets/img/logout.png');
@@ -61,7 +62,6 @@
         &-btn {
             cursor: pointer;
             background: transparent;
-            // border: none;
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             font-size: 18px;
             font-weight: bold;
