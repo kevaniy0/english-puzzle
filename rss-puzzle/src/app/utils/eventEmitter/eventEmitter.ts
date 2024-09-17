@@ -13,9 +13,21 @@ class EventEmitter {
             if (arrayListener) arrayListener.push(listener);
         }
     }
-    unsubscribe() {}
+    unsubscribe(eventName: string, listener: Listener) {
+        if (this.events.has(eventName)) {
+            const arrayListeners = this.events.get(eventName)!;
+            const newArrayListeners = arrayListeners.filter((item) => item !== listener);
+            this.events.set(eventName, newArrayListeners);
+        }
+    }
 
-    once() {}
+    once(eventName: string, listener: Listener) {
+        const once: Listener = (data) => {
+            listener(data);
+            this.unsubscribe(eventName, once);
+        };
+        this.subscribe(eventName, once);
+    }
 
     emit(eventName: string, data?: unknown) {
         const listeners = this.events.get(eventName);

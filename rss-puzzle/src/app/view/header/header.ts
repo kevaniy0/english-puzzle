@@ -6,6 +6,7 @@ import * as HEADER_DATA from './header-data';
 import Router from '../../router/router';
 import PopupCreator from '../../utils/popupCreator/popupCreator';
 import eventEmitter from '../../utils/eventEmitter/eventEmitter';
+import { showLogoutButton, hideLogoutButton } from './header-events';
 class Header extends View {
     router: Router;
     constructor(router: Router) {
@@ -50,12 +51,8 @@ class Header extends View {
         this.view.getElement().append(title.getElement());
 
         const logout = this.createLogout(HEADER_DATA.logoutParams);
-        eventEmitter.subscribe('showLogoutButton', () => {
-            logout.getElement().style.display = 'block';
-        });
-        eventEmitter.subscribe('hideLogoutButton', () => {
-            logout.getElement().style.display = 'none';
-        });
+        eventEmitter.subscribe('showLogoutButton', showLogoutButton.bind(null, logout.getElement()));
+        eventEmitter.subscribe('hideLogoutButton', hideLogoutButton.bind(null, logout.getElement()));
 
         const popup = this.createPopup(logout);
         this.view.getElement().append(popup.getElement());
