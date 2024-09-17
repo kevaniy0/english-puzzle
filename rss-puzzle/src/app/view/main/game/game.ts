@@ -5,6 +5,7 @@ import Router from '../../../router/router';
 import ElementCreator, { ElementParams } from '../../../utils/elementCreator/elementCreator';
 import shuffleCards from '../../../utils/helpers/shuffleCards';
 import getJson from '../../../utils/helpers/getJson';
+import calculateBlockWidth from '../../../utils/helpers/calculateWidth';
 
 class GameView extends View {
     router: Router;
@@ -44,6 +45,11 @@ class GameView extends View {
                 card.textContent = word;
                 this.onMoveCardToAnswer(card, rowsField);
                 currentWords.getElement().append(card);
+            });
+            const arrayWords = Array.from(currentWords.getElement().children) as HTMLElement[];
+            calculateBlockWidth(rowsField, arrayWords);
+            window.addEventListener('resize', () => {
+                calculateBlockWidth(rowsField, arrayWords);
             });
         });
         return currentWords.getElement();

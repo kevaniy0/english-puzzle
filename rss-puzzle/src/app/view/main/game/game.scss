@@ -10,20 +10,17 @@
             display: flex;
             height: 40px;
             border: 1px solid gold;
-            
         }
         &__source-words{
             width: 100%;
             border: 1px solid white;
             display: flex;
-            justify-content: center;
-            gap: 15px;
             margin: 40px auto;
             
         }
         .source-word{
             width: max-content;
-            padding: 5px;
+            line-height: 30px;
             cursor: pointer;
             color: white;
             border: 1px solid wheat;
@@ -34,12 +31,3 @@
     }
 }
 
-
-
-  .fade-out {
-    opacity: 0; /* Эффект исчезновения */
-  }
-  
-  .fade-in {
-    opacity: 1; /* Эффект появления */
-  }
