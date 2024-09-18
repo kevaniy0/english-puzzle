@@ -16,6 +16,7 @@
             border: 1px solid white;
             display: flex;
             margin: 40px auto;
+            height: 40px;
             
         }
         .source-word{
@@ -28,6 +29,7 @@
             text-align: center;
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
+        
     }
 }
 

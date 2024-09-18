@@ -6,6 +6,7 @@ import ElementCreator, { ElementParams } from '../../../utils/elementCreator/ele
 import shuffleCards from '../../../utils/helpers/shuffleCards';
 import getJson from '../../../utils/helpers/getJson';
 import calculateBlockWidth from '../../../utils/helpers/calculateWidth';
+import swapElements from '../../../utils/helpers/swapElements';
 
 class GameView extends View {
     router: Router;
@@ -13,6 +14,7 @@ class GameView extends View {
     level: number = 0;
     round: number = 0;
     currentRow: number = 1;
+    currentSourceWords: string[] = [];
     constructor(router: Router) {
         super(GAME.page);
         this.router = router;
@@ -43,10 +45,16 @@ class GameView extends View {
             wordsArray.forEach((word, index) => {
                 const card = this.createCard({ tag: 'div', className: [`source-word`, `source-word-${index + 1}`] });
                 card.textContent = word;
-                this.onMoveCardToAnswer(card, rowsField);
+                card.id = `w${index}`;
                 currentWords.getElement().append(card);
+                this.onMoveCardToAnswer(card, rowsField, currentWords.getElement(), this.currentRow);
             });
             const arrayWords = Array.from(currentWords.getElement().children) as HTMLElement[];
+
+            arrayWords.forEach(() => {
+                const clearCard = this.createCard({ tag: 'div', className: ['clear-card'] });
+                rowsField.children[this.currentRow - 1].append(clearCard);
+            });
             calculateBlockWidth(rowsField, arrayWords);
             window.addEventListener('resize', () => {
                 calculateBlockWidth(rowsField, arrayWords);
@@ -55,12 +63,16 @@ class GameView extends View {
         return currentWords.getElement();
     }
 
-    private onMoveCardToAnswer(card: HTMLDivElement, rowsField: HTMLDivElement): void {
+    private onMoveCardToAnswer(
+        card: HTMLDivElement,
+        rowsField: HTMLDivElement,
+        sourceWords: HTMLElement,
+        rowNumber: number
+    ): void {
         card.addEventListener('click', () => {
-            rowsField.children[this.currentRow - 1].append(card);
+            swapElements(card, rowsField, sourceWords, rowNumber);
         });
     }
-    // private onMoveCardToSource(card: HTMLDivElement): void {}
 
     configureView(): void {
         const gameField = new ElementCreator(GAME.field);
