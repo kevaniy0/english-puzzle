@@ -8,7 +8,7 @@ import getJson from '../../../utils/helpers/getJson';
 import calculateBlockWidth from '../../../utils/helpers/calculateWidth';
 import swapElements from '../../../utils/helpers/swapElements';
 import eventEmitter from '../../../utils/eventEmitter/eventEmitter';
-import { checkCorrectnessSentence, disableButton, enableButton } from './game-events';
+import { checkCorrectnessSentence, disableButton, enableButton, hideButton, showButton } from './game-events';
 
 class GameView extends View {
     router: Router;
@@ -85,7 +85,6 @@ class GameView extends View {
             window.addEventListener('resize', () => {
                 calculateBlockWidth(this.rowField, arrayWords);
             });
-            eventEmitter.emit('disableContinueButton');
             eventEmitter.emit('disableCheckButton');
         });
     }
@@ -112,19 +111,17 @@ class GameView extends View {
         if (!target.classList.contains('source-word')) return;
         const currentRow = Array.from(this.rowField.children)[this.currentRow - 1] as HTMLElement;
         swapElements(target, currentRow, this.sourceBlock);
-        this.checkFullFilledRow(currentRow);
         this.updateAnswerSentence(currentRow);
+        this.checkFullFilledRow(currentRow);
     }
 
     private createContinueButton(): HTMLButtonElement {
         const btn = new ElementCreator(GAME.continueButton);
-        btn.getElement().disabled = true;
         btn.getElement().addEventListener('click', () => {
             if (this.onClickCard) this.gameField.removeEventListener('click', this.onClickCard);
-            const cards = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLDivElement[];
-            cards.forEach((item) => {
-                console.log(item);
-            });
+            eventEmitter.emit('hideContinueButton');
+            eventEmitter.emit('showCheckButton');
+
             this.currentRow += 1;
             if (this.currentRow === 11) {
                 this.round += 1;
@@ -134,8 +131,9 @@ class GameView extends View {
 
             if (this.gameField) this.configureGame();
         });
-        eventEmitter.subscribe('enableContinueButton', enableButton.bind(null, btn.getElement()));
-        eventEmitter.subscribe('disableContinueButton', disableButton.bind(null, btn.getElement()));
+
+        eventEmitter.subscribe('showContinueButton', showButton.bind(null, btn.getElement()));
+        eventEmitter.subscribe('hideContinueButton', hideButton.bind(null, btn.getElement()));
         return btn.getElement();
     }
 
@@ -144,15 +142,13 @@ class GameView extends View {
         btn.getElement().disabled = true;
         const timer: GAME.Timer = { removeClasses: null };
         btn.getElement().addEventListener('click', () => {
-            if (checkCorrectnessSentence(this.sourceSentence, this.currentAnswerSentence)) {
-                eventEmitter.emit('enableContinueButton');
-            } else {
-                eventEmitter.emit('disableContinueButton');
+            if (!checkCorrectnessSentence(this.sourceSentence, this.currentAnswerSentence)) {
+                this.paintCheckBlocks(this.sourceSentence, this.currentAnswerSentence, timer);
             }
-
-            this.paintCheckBlocks(this.sourceSentence, this.currentAnswerSentence, timer);
         });
 
+        eventEmitter.subscribe('showCheckButton', showButton.bind(null, btn.getElement()));
+        eventEmitter.subscribe('hideCheckButton', hideButton.bind(null, btn.getElement()));
         eventEmitter.subscribe('enableCheckButton', enableButton.bind(null, btn.getElement()));
         eventEmitter.subscribe('disableCheckButton', disableButton.bind(null, btn.getElement()));
         return btn.getElement();
@@ -190,11 +186,18 @@ class GameView extends View {
     private checkFullFilledRow(answerRow: HTMLElement): void {
         const arrayFromRow = Array.from(answerRow.children);
         const result = arrayFromRow.every((item) => !item.classList.contains('clear-card'));
-        if (result) {
-            eventEmitter.emit('enableCheckButton');
-        } else {
+        if (!result) {
             eventEmitter.emit('disableCheckButton');
-            eventEmitter.emit('disableContinueButton');
+            return;
+        }
+        if (checkCorrectnessSentence(this.sourceSentence, this.currentAnswerSentence)) {
+            eventEmitter.emit('showContinueButton');
+            eventEmitter.emit('hideCheckButton');
+            if (this.onClickCard && this.gameField) {
+                this.gameField.removeEventListener('click', this.onClickCard);
+            }
+        } else {
+            eventEmitter.emit('enableCheckButton');
         }
     }
 
