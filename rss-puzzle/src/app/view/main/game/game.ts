@@ -21,7 +21,7 @@ class GameView extends View {
     sourceBlock: HTMLDivElement;
     sourceSentence: string = '';
     currentAnswerSentence: string = '';
-
+    onClickCard?: (event: Event) => void;
     constructor(router: Router) {
         super(GAME.page);
         this.router = router;
@@ -57,10 +57,9 @@ class GameView extends View {
             card.textContent = word;
             card.id = `w${index}`;
             this.sourceBlock.append(card);
-            if (this.gameField) {
-                this.onMoveCard(card, this.currentRow);
-            }
         });
+        this.onClickCard = this.createCallbackCard.bind(this);
+        this.gameField.addEventListener('click', this.onClickCard);
     }
 
     private configureAsnwerRow() {
@@ -108,19 +107,24 @@ class GameView extends View {
         }
     }
 
-    private onMoveCard(card: HTMLDivElement, rowNumber: number): void {
-        card.addEventListener('click', () => {
-            const currentRow = Array.from(this.rowField.children)[rowNumber - 1] as HTMLElement;
-            swapElements(card, currentRow, this.sourceBlock);
-            this.checkFullFilledRow(currentRow);
-            this.updateAnswerSentence(currentRow);
-        });
+    private createCallbackCard(event: Event) {
+        const target = event.target! as HTMLElement;
+        if (!target.classList.contains('source-word')) return;
+        const currentRow = Array.from(this.rowField.children)[this.currentRow - 1] as HTMLElement;
+        swapElements(target, currentRow, this.sourceBlock);
+        this.checkFullFilledRow(currentRow);
+        this.updateAnswerSentence(currentRow);
     }
 
     private createContinueButton(): HTMLButtonElement {
         const btn = new ElementCreator(GAME.continueButton);
         btn.getElement().disabled = true;
         btn.getElement().addEventListener('click', () => {
+            if (this.onClickCard) this.gameField.removeEventListener('click', this.onClickCard);
+            const cards = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLDivElement[];
+            cards.forEach((item) => {
+                console.log(item);
+            });
             this.currentRow += 1;
             if (this.currentRow === 11) {
                 this.round += 1;
@@ -138,12 +142,15 @@ class GameView extends View {
     private createCheckButton(): HTMLButtonElement {
         const btn = new ElementCreator(GAME.checkButton);
         btn.getElement().disabled = true;
+        const timer: GAME.Timer = { removeClasses: null };
         btn.getElement().addEventListener('click', () => {
             if (checkCorrectnessSentence(this.sourceSentence, this.currentAnswerSentence)) {
                 eventEmitter.emit('enableContinueButton');
             } else {
                 eventEmitter.emit('disableContinueButton');
             }
+
+            this.paintCheckBlocks(this.sourceSentence, this.currentAnswerSentence, timer);
         });
 
         eventEmitter.subscribe('enableCheckButton', enableButton.bind(null, btn.getElement()));
@@ -157,6 +164,27 @@ class GameView extends View {
         const continueBtn = this.createContinueButton();
         buttonWrapper.getElement().append(checkButton, continueBtn);
         return buttonWrapper.getElement();
+    }
+
+    private paintCheckBlocks(correctSentence: string, currentSentence: string, timer: GAME.Timer) {
+        const currentBlocks = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLElement[];
+        const correctWords = correctSentence.split(' ');
+        const currentWords = currentSentence.split(' ');
+        if (timer.removeClasses) {
+            clearTimeout(timer.removeClasses);
+            currentBlocks.forEach((item) => item.classList.remove('paint-wrong', 'paint-true'));
+        }
+        for (let i = 0; i < correctWords.length; i += 1) {
+            currentBlocks[i].classList.remove('paint-wrong', 'paint-true');
+            if (correctWords[i] === currentWords[i]) {
+                currentBlocks[i].classList.add('paint-true');
+            } else {
+                currentBlocks[i].classList.add('paint-wrong');
+            }
+        }
+        timer.removeClasses = setTimeout(() => {
+            currentBlocks.forEach((item) => item.classList.remove('paint-wrong', 'paint-true'));
+        }, 3000);
     }
 
     private checkFullFilledRow(answerRow: HTMLElement): void {
@@ -181,6 +209,7 @@ class GameView extends View {
         const buttonField = this.createButtonField();
 
         this.gameField.append(this.rowField, this.sourceBlock, buttonField);
+
         this.getViewHtml().append(this.gameField);
     }
 }

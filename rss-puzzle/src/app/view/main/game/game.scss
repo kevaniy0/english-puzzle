@@ -27,7 +27,7 @@
             border: 1px solid wheat;
             font-size: 20px;
             text-align: center;
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 1s ease;
         }
         .game-button-field{
             display: flex;
@@ -35,7 +35,13 @@
             gap: 15px;
             margin-bottom: 40px;
         }
+
+        .paint-true{
+            box-shadow: 0px 0px 71px -14px rgba(77, 244, 85, 0.69) inset;
+        }
+        .paint-wrong{
+            box-shadow: 0px 0px 71px -14px rgba(240, 55, 16, 0.69) inset;
+        }
         
     }
 }
-

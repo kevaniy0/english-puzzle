@@ -28,6 +28,9 @@ export type Word = {
     wordTranslate: string;
 };
 
+export type Timer = {
+    removeClasses: ReturnType<typeof setTimeout> | null;
+};
 export const page: ElementParams<'section'> = { tag: 'section', className: ['game-section'] };
 export const field: ElementParams<'div'> = { tag: 'div', className: ['game-field'] };
 export const rowsFild: ElementParams<'div'> = { tag: 'div', className: ['game-field__rows-field'] };
