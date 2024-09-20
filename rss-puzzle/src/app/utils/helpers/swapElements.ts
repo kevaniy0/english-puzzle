@@ -1,9 +1,9 @@
-function swapElements(card: HTMLElement, asnwerRow: HTMLElement, sourceBlock: HTMLElement, rowNumber: number): void {
+function swapElements(card: HTMLElement, aswerRow: HTMLElement, sourceBlock: HTMLElement): void {
     const parent = card.parentElement!;
     let neededRow: HTMLElement[] | null = null;
     let neededBlock: HTMLElement | null = null;
     if (parent.classList.contains('game-field__source-words')) {
-        neededRow = Array.from(asnwerRow.children[rowNumber - 1].children) as HTMLElement[];
+        neededRow = Array.from(aswerRow.children) as HTMLElement[];
         neededBlock = neededRow.find((item) => item.classList.contains('clear-card')) as HTMLElement;
         if (neededBlock) {
             neededBlock.style.width = card.style.width;
