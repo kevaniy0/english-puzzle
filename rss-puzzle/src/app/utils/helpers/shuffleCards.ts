@@ -1,5 +1,5 @@
-function shuffleCards(cards: string[]): string[] {
-    const array: string[] = cards;
+function shuffleCards(cards: HTMLDivElement[]): HTMLDivElement[] {
+    const array: HTMLDivElement[] = cards;
     let currentIndex = array.length;
     let randomIndex = 0;
 

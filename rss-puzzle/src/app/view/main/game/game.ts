@@ -52,12 +52,16 @@ class GameView extends View {
     }
 
     private createCurrentSourceWords(arrayWords: string[]) {
+        const arrayCards: HTMLDivElement[] = [];
         arrayWords.forEach((word, index) => {
             const card = this.createCard({ tag: 'div', className: [`source-word`, `source-word-${index + 1}`] });
             card.textContent = word;
             card.id = `w${index}`;
-            this.sourceBlock.append(card);
+            arrayCards.push(card);
+            // this.sourceBlock.append(card);
         });
+        shuffleCards(arrayCards);
+        arrayCards.forEach((item) => this.sourceBlock.append(item));
         this.onClickCard = this.createCallbackCard.bind(this);
         this.gameField.addEventListener('click', this.onClickCard);
     }
@@ -76,8 +80,9 @@ class GameView extends View {
         this.collection.then((item) => {
             const wordsArray: string[] = item.rounds[this.round].words[this.currentRow - 1].textExample.split(' ');
             this.sourceSentence = wordsArray.join(' ');
-            shuffleCards(wordsArray);
+
             this.createCurrentSourceWords(wordsArray);
+
             const arrayWords = Array.from(this.sourceBlock.children) as HTMLElement[];
 
             this.configureAsnwerRow();
@@ -86,6 +91,7 @@ class GameView extends View {
                 calculateBlockWidth(this.rowField, arrayWords);
             });
             eventEmitter.emit('disableCheckButton');
+            eventEmitter.emit('showAutoCompleteButton');
         });
     }
 
@@ -109,6 +115,7 @@ class GameView extends View {
     private createCallbackCard(event: Event) {
         const target = event.target! as HTMLElement;
         if (!target.classList.contains('source-word')) return;
+        target.classList.remove('paint-wrong', 'paint-true');
         const currentRow = Array.from(this.rowField.children)[this.currentRow - 1] as HTMLElement;
         swapElements(target, currentRow, this.sourceBlock);
         this.updateAnswerSentence(currentRow);
@@ -154,11 +161,23 @@ class GameView extends View {
         return btn.getElement();
     }
 
+    private createAutoCompleteButton() {
+        const btn = new ElementCreator(GAME.autoComplete);
+
+        btn.getElement().addEventListener('click', this.onAutoComplete.bind(this));
+
+        eventEmitter.subscribe('hideAutoCompleteButton', hideButton.bind(null, btn.getElement()));
+        eventEmitter.subscribe('showAutoCompleteButton', showButton.bind(null, btn.getElement()));
+
+        return btn.getElement();
+    }
+
     private createButtonField(): HTMLDivElement {
         const buttonWrapper = new ElementCreator(GAME.buttonWrapper);
         const checkButton = this.createCheckButton();
+        const autoCompleteButton = this.createAutoCompleteButton();
         const continueBtn = this.createContinueButton();
-        buttonWrapper.getElement().append(checkButton, continueBtn);
+        buttonWrapper.getElement().append(checkButton, autoCompleteButton, continueBtn);
         return buttonWrapper.getElement();
     }
 
@@ -183,6 +202,33 @@ class GameView extends View {
         }, 3000);
     }
 
+    private onAutoComplete(): void {
+        const wordsFromSource = Array.from(this.sourceBlock.children).filter((item) =>
+            item.classList.contains('source-word')
+        );
+        const wordsFromAnswerRow = Array.from(this.rowField.children[this.currentRow - 1].children).filter((item) =>
+            item.classList.contains('source-word')
+        );
+        const neededBlock = [...wordsFromSource, ...wordsFromAnswerRow];
+        const row = this.rowField.children[this.currentRow - 1] as HTMLElement;
+        while (row.firstElementChild) {
+            row.firstElementChild.remove();
+        }
+
+        neededBlock.sort((a, b) => {
+            const first = Number(a.id.slice(1));
+            const second = Number(b.id.slice(1));
+            return first - second;
+        });
+
+        neededBlock.forEach((item) => {
+            row.append(item);
+            item.classList.remove('paint-wrong', 'paint-true');
+        });
+        this.updateAnswerSentence(row);
+        this.checkFullFilledRow(row);
+    }
+
     private checkFullFilledRow(answerRow: HTMLElement): void {
         const arrayFromRow = Array.from(answerRow.children);
         const result = arrayFromRow.every((item) => !item.classList.contains('clear-card'));
@@ -193,6 +239,7 @@ class GameView extends View {
         if (checkCorrectnessSentence(this.sourceSentence, this.currentAnswerSentence)) {
             eventEmitter.emit('showContinueButton');
             eventEmitter.emit('hideCheckButton');
+            eventEmitter.emit('hideAutoCompleteButton');
             if (this.onClickCard && this.gameField) {
                 this.gameField.removeEventListener('click', this.onClickCard);
             }

@@ -51,3 +51,8 @@ export const checkButton: ElementParams<'button'> = {
     className: ['btn', 'btn-check'],
     textContent: 'Check',
 };
+export const autoComplete: ElementParams<'button'> = {
+    tag: 'button',
+    className: ['btn', 'btn-auto-complete', 'btn--active'],
+    textContent: 'Auto-Complete',
+};
