@@ -21,7 +21,16 @@ class GameView extends View {
     sourceBlock: HTMLDivElement;
     sourceSentence: string = '';
     currentAnswerSentence: string = '';
-    onClickCard?: (event: Event) => void;
+    checkDrag: GAME.CheckDrag = {
+        element: null,
+        DRAX_PX: 10,
+        startX: 0,
+        startY: 0,
+        currentX: 0,
+        currentY: 0,
+    };
+    dragging: boolean = false;
+    onClickCard?: (event: PointerEvent) => void;
     constructor(router: Router) {
         super(GAME.page);
         this.router = router;
@@ -58,12 +67,11 @@ class GameView extends View {
             card.textContent = word;
             card.id = `w${index}`;
             arrayCards.push(card);
-            // this.sourceBlock.append(card);
         });
         shuffleCards(arrayCards);
         arrayCards.forEach((item) => this.sourceBlock.append(item));
         this.onClickCard = this.createCallbackCard.bind(this);
-        this.gameField.addEventListener('click', this.onClickCard);
+        this.gameField.addEventListener('pointerup', this.onClickCard);
     }
 
     private configureAsnwerRow() {
@@ -76,7 +84,6 @@ class GameView extends View {
 
     private configureGame() {
         this.updateSourceBlock();
-
         this.collection.then((item) => {
             const wordsArray: string[] = item.rounds[this.round].words[this.currentRow - 1].textExample.split(' ');
             this.sourceSentence = wordsArray.join(' ');
@@ -86,6 +93,8 @@ class GameView extends View {
             const arrayWords = Array.from(this.sourceBlock.children) as HTMLElement[];
 
             this.configureAsnwerRow();
+            this.onDragCard();
+
             calculateBlockWidth(this.rowField, arrayWords);
             window.addEventListener('resize', () => {
                 calculateBlockWidth(this.rowField, arrayWords);
@@ -112,20 +121,23 @@ class GameView extends View {
         }
     }
 
-    private createCallbackCard(event: Event) {
+    private createCallbackCard(event: PointerEvent) {
         const target = event.target! as HTMLElement;
         if (!target.classList.contains('source-word')) return;
-        target.classList.remove('paint-wrong', 'paint-true');
+        if (this.wasDraggin(event.clientX, event.clientY)) return;
+
+        target.classList.remove('paint-wrong', 'paint-true', 'source-word--selected');
         const currentRow = Array.from(this.rowField.children)[this.currentRow - 1] as HTMLElement;
         swapElements(target, currentRow, this.sourceBlock);
         this.updateAnswerSentence(currentRow);
         this.checkFullFilledRow(currentRow);
+        this.dragging = false;
     }
 
     private createContinueButton(): HTMLButtonElement {
         const btn = new ElementCreator(GAME.continueButton);
         btn.getElement().addEventListener('click', () => {
-            if (this.onClickCard) this.gameField.removeEventListener('click', this.onClickCard);
+            if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
             eventEmitter.emit('hideContinueButton');
             eventEmitter.emit('showCheckButton');
 
@@ -161,7 +173,7 @@ class GameView extends View {
         return btn.getElement();
     }
 
-    private createAutoCompleteButton() {
+    private createAutoCompleteButton(): HTMLButtonElement {
         const btn = new ElementCreator(GAME.autoComplete);
 
         btn.getElement().addEventListener('click', this.onAutoComplete.bind(this));
@@ -181,7 +193,7 @@ class GameView extends View {
         return buttonWrapper.getElement();
     }
 
-    private paintCheckBlocks(correctSentence: string, currentSentence: string, timer: GAME.Timer) {
+    private paintCheckBlocks(correctSentence: string, currentSentence: string, timer: GAME.Timer): void {
         const currentBlocks = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLElement[];
         const correctWords = correctSentence.split(' ');
         const currentWords = currentSentence.split(' ');
@@ -227,6 +239,124 @@ class GameView extends View {
         });
         this.updateAnswerSentence(row);
         this.checkFullFilledRow(row);
+        this.onDragCardRemove();
+    }
+
+    private onDragCard(): void {
+        const zoneSource = this.sourceBlock as HTMLElement;
+        const zoneAnswer = this.rowField.children[this.currentRow - 1] as HTMLElement;
+
+        zoneSource.addEventListener('pointerdown', this.onPointerDown);
+        zoneSource.addEventListener('pointerup', this.onPointerUp);
+        zoneAnswer.addEventListener('pointerdown', this.onPointerDown);
+        zoneAnswer.addEventListener('pointerup', this.onPointerUp);
+        document.body.addEventListener('pointermove', this.onPointerMove);
+    }
+
+    private onDragCardRemove() {
+        const zoneSource = this.sourceBlock as HTMLElement;
+        const zoneAnswer = this.rowField.children[this.currentRow - 1] as HTMLElement;
+
+        zoneSource.removeEventListener('pointerdown', this.onPointerDown);
+        zoneSource.removeEventListener('pointerup', this.onPointerUp);
+        zoneAnswer.removeEventListener('pointerdown', this.onPointerDown);
+        zoneAnswer.removeEventListener('pointerup', this.onPointerUp);
+        document.body.removeEventListener('pointermove', this.onPointerMove);
+    }
+
+    private onPointerDown = (event: PointerEvent): void => {
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        const element = event.target as HTMLElement;
+        if (!element.classList.contains('source-word')) return;
+
+        this.checkDrag.element = element;
+        this.dragging = true;
+        this.checkDrag.startX = event.clientX;
+        this.checkDrag.startY = event.clientY;
+        this.checkDrag.currentX = event.clientX;
+        this.checkDrag.currentY = event.clientY;
+        element.classList.add('source-word--selected');
+    };
+    private onPointerMove = (event: PointerEvent): void => {
+        if (!this.dragging) return;
+        if (this.wasDraggin(event.clientX, event.clientY)) {
+            document.body.style.cursor = 'grabbing';
+            this.checkDrag.element!.style.cursor = 'grabbing';
+            this.checkDrag.currentX = event.clientX;
+            this.checkDrag.currentY = event.clientY;
+            this.checkDrag.element!.style.transform = `translate(${this.checkDrag.currentX - this.checkDrag.startX}px, ${this.checkDrag.currentY - this.checkDrag.startY}px)`;
+        }
+    };
+
+    private onPointerUp = (event: PointerEvent): void => {
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        if (!this.checkDrag.element) return;
+        if (!this.wasDraggin(event.clientX, event.clientY)) return;
+        const target = event.target as HTMLElement;
+        if (!target.classList.contains('source-word')) return;
+        this.dragging = false;
+
+        const element = this.checkDrag.element;
+        element.style.zIndex = '-1';
+        const hovered = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement;
+        const hoveredParent = hovered.parentElement;
+        const elementParent = this.checkDrag.element.parentElement;
+
+        if (element.parentElement?.classList.contains('game-field__source-words')) {
+            // *** Если взяли элемент из source block
+
+            if (
+                hovered.classList.contains(`row-${this.currentRow}`) ||
+                (hovered.classList.contains(`clear-card`) &&
+                    hoveredParent?.classList.contains(`row-${this.currentRow}`))
+            ) {
+                // * Если навелись на область строки с ответом или пустую ячейку (вставляем вначало)
+                swapElements(element, this.rowField.children[this.currentRow - 1] as HTMLElement, this.sourceBlock);
+            } else if (
+                hovered.classList.contains(`source-word`) &&
+                hoveredParent?.classList.contains(`row-${this.currentRow}`)
+            ) {
+                // * Если навели на вставленную карточку в строке с ответами (вставляем перед наведенным элементом)
+                swapElements(element, this.rowField.children[this.currentRow - 1] as HTMLElement, this.sourceBlock);
+                (this.rowField.children[this.currentRow - 1] as HTMLElement).insertBefore(element, hovered);
+            }
+        } else if (element.parentElement?.classList.contains(`row-${this.currentRow}`)) {
+            // *** Если взяли элемент из answer row
+
+            if (
+                hovered.classList.contains('source-word') &&
+                hoveredParent?.classList.contains(`row-${this.currentRow}`)
+            ) {
+                // * Если меняем элементы в строке ответов
+                const tempNode = document.createElement('div');
+                elementParent?.replaceChild(tempNode, element);
+                elementParent?.replaceChild(element, hovered);
+                elementParent?.replaceChild(hovered, tempNode);
+            } else if (hoveredParent?.classList.contains('game-field__source-words')) {
+                // * Если из строки ответов тянем в строку слов
+                swapElements(element, this.rowField.children[this.currentRow - 1] as HTMLElement, this.sourceBlock);
+            }
+        }
+
+        this.updateAnswerSentence(this.rowField.children[this.currentRow - 1] as HTMLElement);
+        this.checkFullFilledRow(this.rowField.children[this.currentRow - 1] as HTMLElement);
+        document.body.style.cursor = '';
+        element.style.cursor = '';
+        element.style.transform = '';
+        element.classList.add('source-word--up');
+        element.classList.remove('source-word--selected');
+        setTimeout(() => element.classList.remove('source-word--up'), 501);
+        setTimeout(() => (element.style.zIndex = ''), 1);
+        this.checkDrag.element = null;
+    };
+
+    private wasDraggin(currentX: number, currentY: number): boolean {
+        const deltaX = Math.abs(currentX - this.checkDrag.startX);
+        const deltaY = Math.abs(currentY - this.checkDrag.startY);
+        if (deltaX > this.checkDrag.DRAX_PX || deltaY > this.checkDrag.DRAX_PX) {
+            return true;
+        }
+        return false;
     }
 
     private checkFullFilledRow(answerRow: HTMLElement): void {
@@ -241,7 +371,7 @@ class GameView extends View {
             eventEmitter.emit('hideCheckButton');
             eventEmitter.emit('hideAutoCompleteButton');
             if (this.onClickCard && this.gameField) {
-                this.gameField.removeEventListener('click', this.onClickCard);
+                this.gameField.removeEventListener('pointerup', this.onClickCard);
             }
         } else {
             eventEmitter.emit('enableCheckButton');

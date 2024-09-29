@@ -31,6 +31,16 @@ export type Word = {
 export type Timer = {
     removeClasses: ReturnType<typeof setTimeout> | null;
 };
+
+export type CheckDrag = {
+    element: HTMLElement | null;
+    readonly DRAX_PX: 10;
+    startX: number;
+    startY: number;
+    currentX: number;
+    currentY: number;
+};
+
 export const page: ElementParams<'section'> = { tag: 'section', className: ['game-section'] };
 export const field: ElementParams<'div'> = { tag: 'div', className: ['game-field'] };
 export const rowsFild: ElementParams<'div'> = { tag: 'div', className: ['game-field__rows-field'] };

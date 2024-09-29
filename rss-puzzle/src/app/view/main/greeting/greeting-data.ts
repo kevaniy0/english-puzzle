@@ -10,7 +10,7 @@ export const description: ElementParams<'h3'> = {
     tag: 'h3',
     className: ['greeting-description'],
     textContent:
-        'Engaging game designed to help players learn English through puzzle-solving. Players form correct sentences by connecting words and phrases, enhancing their grammar and vocabulary skills. Suitable for all language levels, this game turns learning into a fun and interactive experience!',
+        'Engaging game designed to help players learn English through puzzle-solving. Players form correct sentences by connecting words, enhancing their grammar and vocabulary skills. Suitable for all language levels, this game turns learning into a fun and interactive experience!',
 };
 
 export const wrapperBlock: ElementParams<'div'> = { tag: 'div', className: ['interaction-block'] };
