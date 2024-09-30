@@ -20,8 +20,10 @@
             height: 40px;
             pointer-events: all;
             
+            
         }
         .source-word{
+            position: relative;
             cursor: pointer;
             color: white;
             border: 1px solid wheat;
@@ -30,10 +32,43 @@
             text-align: center;
             transition: opacity 0.5s ease, box-shadow 0.5s ease;
             touch-action: none;
-            
+            background-color: #02315E;
+            border: none;
             &--up {
                 transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.5s ease;
             }
+
+            &::before {
+                z-index: 10;
+                content: "";
+                box-sizing: border-box;
+                position: absolute;
+                width: 7px;
+                height: 14px;
+                left: 0%;
+                top: calc(50% - 7px);
+                background-color: #0f0d13;
+                border-top-right-radius: 7px;
+                border-bottom-right-radius: 7px;
+            }
+            &::after {
+                z-index: 11;
+                content: "";
+                box-sizing: border-box;
+                position: absolute;
+                width: 7px;
+                height: 14px;
+                right: calc(0% - 7px);
+                top: calc(50% - 7px);
+                background-color: #02315E;
+                border-top-right-radius: 7px;
+                border-bottom-right-radius: 7px;
+            }
+            
+            
+        }
+        .first-puzzle::before, .last-puzzle::after{
+            display: none;
         }
         .game-button-field{
             display: flex;

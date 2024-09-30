@@ -27,31 +27,4 @@ function checkCorrectnessSentence(sourceSentence: string, answerSentence: string
     return sourceSentence === answerSentence;
 }
 
-function clearDefaultBehaviour(event: Event) {
-    event.preventDefault();
-}
-
-function dragStart(event: Event) {
-    const element = event.target as HTMLElement;
-    if (element && element.classList.contains('source-word')) {
-        element.classList.add('source-word--selected');
-    }
-}
-
-function dragEnd(event: Event) {
-    const element = event.target as HTMLElement;
-    if (element && element.classList.contains('source-word')) {
-        element.classList.remove('source-word--selected');
-    }
-}
-
-export {
-    enableButton,
-    disableButton,
-    checkCorrectnessSentence,
-    hideButton,
-    showButton,
-    clearDefaultBehaviour,
-    dragStart,
-    dragEnd,
-};
+export { enableButton, disableButton, checkCorrectnessSentence, hideButton, showButton };

@@ -66,6 +66,8 @@ class GameView extends View {
             const card = this.createCard({ tag: 'div', className: [`source-word`, `source-word-${index + 1}`] });
             card.textContent = word;
             card.id = `w${index}`;
+            if (index === 0) card.classList.add('first-puzzle');
+            if (index === arrayWords.length - 1) card.classList.add('last-puzzle');
             arrayCards.push(card);
         });
         shuffleCards(arrayCards);
