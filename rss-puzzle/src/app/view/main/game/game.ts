@@ -9,10 +9,12 @@ import calculateBlockWidth from '../../../utils/helpers/calculateWidth';
 import swapElements from '../../../utils/helpers/swapElements';
 import eventEmitter from '../../../utils/eventEmitter/eventEmitter';
 import { checkCorrectnessSentence, disableButton, enableButton, hideButton, showButton } from './game-events';
+import Hints from './hints/hints';
 
 class GameView extends View {
     router: Router;
     collection: Promise<GAME.Collection>;
+    hints: Hints;
     level: number = 0;
     round: number = 0;
     currentRow: number = 1;
@@ -34,6 +36,7 @@ class GameView extends View {
     constructor(router: Router) {
         super(GAME.page);
         this.router = router;
+        this.hints = new Hints();
         this.gameField = this.createGameField();
         this.rowField = this.createRowsField();
         this.sourceBlock = this.createSourceBlock();
@@ -89,7 +92,9 @@ class GameView extends View {
         this.collection.then((item) => {
             const wordsArray: string[] = item.rounds[this.round].words[this.currentRow - 1].textExample.split(' ');
             this.sourceSentence = wordsArray.join(' ');
-
+            this.hints.translationSentence.setTextContent(
+                item.rounds[this.round].words[this.currentRow - 1].textExampleTranslate
+            );
             this.createCurrentSourceWords(wordsArray);
 
             const arrayWords = Array.from(this.sourceBlock.children) as HTMLElement[];
@@ -392,7 +397,7 @@ class GameView extends View {
 
         this.gameField.append(this.rowField, this.sourceBlock, buttonField);
 
-        this.getViewHtml().append(this.gameField);
+        this.getViewHtml().append(this.hints.getViewHtml(), this.gameField);
     }
 }
 
