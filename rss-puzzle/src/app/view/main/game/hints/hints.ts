@@ -5,6 +5,7 @@ import { audioUrl } from '../game-data';
 import {
     component,
     iconsWrapper,
+    loaderAudio,
     pronounceHoverTitle,
     pronounceSpan,
     pronuounceButton,
@@ -15,6 +16,7 @@ import {
     wrapper,
 } from './hints-data';
 import { Collection } from '../game-data';
+import eventEmitter from '../../../../utils/eventEmitter/eventEmitter';
 
 class Hints extends View {
     translationSentence: ElementCreator<'p'>;
@@ -52,8 +54,13 @@ class Hints extends View {
 
     private createPronounceButton(): ElementCreator<'button'> {
         const button = new ElementCreator<'button'>(pronuounceButton);
+        const loader = new ElementCreator<'span'>(loaderAudio);
         const span = new ElementCreator<'span'>(pronounceSpan);
+        eventEmitter.subscribe('showLoader', () => loader.getElement().classList.add('loader-on'));
+        eventEmitter.subscribe('hideLoader', () => loader.getElement().classList.remove('loader-on'));
+        span.getElement().append(loader.getElement());
         button.getElement().append(span.getElement());
+
         button.getElement().title = pronounceHoverTitle;
         return button;
     }

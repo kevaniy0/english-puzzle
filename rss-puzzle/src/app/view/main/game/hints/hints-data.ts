@@ -15,5 +15,6 @@ export const pronuounceButton: ElementParams<'button'> = {
     tag: 'button',
     className: ['hint-icon', 'pronounce-button'],
 };
+export const loaderAudio: ElementParams<'span'> = { tag: 'span', className: ['loader-audio'] };
 export const pronounceSpan: ElementParams<'span'> = { tag: 'span', className: ['pronounce-span'] };
 export const pronounceHoverTitle: string = 'Pronounce Sentence';

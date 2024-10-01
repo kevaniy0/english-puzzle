@@ -416,6 +416,10 @@ class GameView extends View {
         this.hints.pronounceSetntence.getElement().addEventListener('click', () => {
             if (this.hints.audioFile) {
                 this.hints.audioFile.play();
+                eventEmitter.emit('showLoader');
+                this.hints.audioFile.addEventListener('ended', () => {
+                    eventEmitter.emit('hideLoader');
+                });
             }
         });
     };
