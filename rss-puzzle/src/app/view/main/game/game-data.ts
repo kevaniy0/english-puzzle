@@ -41,6 +41,8 @@ export type CheckDrag = {
     currentY: number;
 };
 
+export const audioUrl: string = 'https://raw.githubusercontent.com/rolling-scopes-school/rss-puzzle-data/main/';
+
 export const page: ElementParams<'section'> = { tag: 'section', className: ['game-section'] };
 export const field: ElementParams<'div'> = { tag: 'div', className: ['game-field'] };
 export const rowsFild: ElementParams<'div'> = { tag: 'div', className: ['game-field__rows-field'] };

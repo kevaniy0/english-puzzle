@@ -7,6 +7,13 @@
     font-family: BalsamiqSans-Regular, serif;
     color: white;
     font-size: 20px;
+
+    .sentence-wrapper{
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
     .translation-sentence{
         width: 100%;
         text-align: center;
@@ -45,6 +52,18 @@
     .translate-button--off{
         background-color: rgb(189, 187, 187);
         border: 1px solid transparent;
+    }
+
+    .pronounce-button{
+        background-color: transparent;
+    }
+
+    .pronounce-span{
+        display: block;
+        background-image: url('../../../../../assets/img/pronounce.png');
+        width: 24px;
+        height: 24px;
+        background-size: cover;
     }
 
     

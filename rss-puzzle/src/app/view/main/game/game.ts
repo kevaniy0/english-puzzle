@@ -36,11 +36,12 @@ class GameView extends View {
     constructor(router: Router) {
         super(GAME.page);
         this.router = router;
-        this.hints = new Hints();
         this.gameField = this.createGameField();
         this.rowField = this.createRowsField();
         this.sourceBlock = this.createSourceBlock();
         this.collection = getJson('./data/wordCollectionLevel1.json');
+        this.hints = new Hints();
+
         this.configureView();
     }
 
@@ -95,6 +96,8 @@ class GameView extends View {
             this.hints.translationSentence.setTextContent(
                 item.rounds[this.round].words[this.currentRow - 1].textExampleTranslate
             );
+            this.hints.audioFile = this.hints.getAudio(item, this.round, this.currentRow);
+
             if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
                 this.hints.translationSentence.getElement().style.opacity = '0';
             }
@@ -409,6 +412,14 @@ class GameView extends View {
         });
     }
 
+    private onPronounceClick = () => {
+        this.hints.pronounceSetntence.getElement().addEventListener('click', () => {
+            if (this.hints.audioFile) {
+                this.hints.audioFile.play();
+            }
+        });
+    };
+
     private showTranslate(): void {
         if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
             this.hints.translationSentence.getElement().style.opacity = '1';
@@ -420,6 +431,7 @@ class GameView extends View {
         this.updateRowField();
         const buttonField = this.createButtonField();
         this.onClickTranslationIcon();
+        this.onPronounceClick();
         this.gameField.append(this.rowField, this.sourceBlock, buttonField);
 
         this.getViewHtml().append(this.hints.getViewHtml(), this.gameField);
