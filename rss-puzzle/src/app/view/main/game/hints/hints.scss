@@ -1,13 +1,51 @@
 .hints {
     display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 70%;
     margin: 0 auto;
     font-family: BalsamiqSans-Regular, serif;
     color: white;
     font-size: 20px;
-    
     .translation-sentence{
         width: 100%;
         text-align: center;
     }
+    .hint-icons{
+        display: flex;
+    }
+    
+    .hint-icon{
+        padding: 4px 4px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .translate-button{
+        background: none;
+        border: none;
+    }
+    
+
+    .translate-span{
+        display: block;
+        background-image: url('../../../../../assets/img/translationOn.png');
+        width: 24px;
+        height: 24px;
+        background-size: cover;
+    }
+
+    .translate-button--on{
+        background-color: rgb(2, 49, 94);
+        border: 1px solid white;
+    }
+
+    .translate-button--off{
+        background-color: rgb(189, 187, 187);
+        border: 1px solid transparent;
+    }
+
+    
 }

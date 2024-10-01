@@ -95,6 +95,9 @@ class GameView extends View {
             this.hints.translationSentence.setTextContent(
                 item.rounds[this.round].words[this.currentRow - 1].textExampleTranslate
             );
+            if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
+                this.hints.translationSentence.getElement().style.opacity = '0';
+            }
             this.createCurrentSourceWords(wordsArray);
 
             const arrayWords = Array.from(this.sourceBlock.children) as HTMLElement[];
@@ -377,6 +380,7 @@ class GameView extends View {
             eventEmitter.emit('showContinueButton');
             eventEmitter.emit('hideCheckButton');
             eventEmitter.emit('hideAutoCompleteButton');
+            this.showTranslate();
             if (this.onClickCard && this.gameField) {
                 this.gameField.removeEventListener('pointerup', this.onClickCard);
             }
@@ -385,16 +389,37 @@ class GameView extends View {
         }
     }
 
-    private updateAnswerSentence(row: HTMLElement) {
+    private updateAnswerSentence(row: HTMLElement): void {
         const arrayFromRow = Array.from(row.children).map((item) => item.textContent);
         this.currentAnswerSentence = arrayFromRow.join(' ');
+    }
+
+    private onClickTranslationIcon() {
+        const translateButton = this.hints.translationIcon.getElement();
+        translateButton.addEventListener('click', () => {
+            if (translateButton.classList.contains('translate-button--on')) {
+                translateButton.classList.remove('translate-button--on');
+                translateButton.classList.add('translate-button--off');
+                this.hints.translationSentence.getElement().style.opacity = '0';
+            } else {
+                translateButton.classList.remove('translate-button--off');
+                translateButton.classList.add('translate-button--on');
+                this.hints.translationSentence.getElement().style.opacity = '1';
+            }
+        });
+    }
+
+    private showTranslate(): void {
+        if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
+            this.hints.translationSentence.getElement().style.opacity = '1';
+        }
     }
 
     configureView(): void {
         this.configureGame();
         this.updateRowField();
         const buttonField = this.createButtonField();
-
+        this.onClickTranslationIcon();
         this.gameField.append(this.rowField, this.sourceBlock, buttonField);
 
         this.getViewHtml().append(this.hints.getViewHtml(), this.gameField);
