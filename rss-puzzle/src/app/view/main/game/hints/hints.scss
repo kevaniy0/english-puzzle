@@ -9,17 +9,22 @@
     font-size: 20px;
 
     .sentence-wrapper{
+        min-height: 32px;
         display: flex;
         justify-content: center;
+        align-items: center;
         gap: 10px;
+        margin: 20px 0;
     }
 
     .translation-sentence{
         width: 100%;
         text-align: center;
+        margin: 0;
     }
     .hint-icons{
         display: flex;
+        gap: 5px;
     }
     
     .hint-icon{
@@ -66,6 +71,30 @@
         height: 24px;
         background-size: cover;
     }
+
+    .pronounce-hint-button{
+        background-color: rgb(189, 187, 187);
+        border: 1px solid transparent;
+    }
+
+    .pronounce-hint-button--on{
+        background-color: rgb(2, 49, 94);
+        border: 1px solid white;
+    }
+    
+
+
+
+    .pronounce-hint-span{
+        position: relative;
+        display: block;
+        background-image: url('../../../../../assets/img/diction.png');
+        width: 24px;
+        height: 24px;
+        background-size: cover;
+    }
+
+    
 
     .loader-audio{
         position: absolute;

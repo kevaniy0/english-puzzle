@@ -18,3 +18,13 @@ export const pronuounceButton: ElementParams<'button'> = {
 export const loaderAudio: ElementParams<'span'> = { tag: 'span', className: ['loader-audio'] };
 export const pronounceSpan: ElementParams<'span'> = { tag: 'span', className: ['pronounce-span'] };
 export const pronounceHoverTitle: string = 'Pronounce Sentence';
+
+export const pronounceHintButton: ElementParams<'button'> = {
+    tag: 'button',
+    className: ['hint-icon', 'pronounce-hint-button', 'pronounce-hint-button--on'],
+};
+export const pronounceHintSpan: ElementParams<'span'> = {
+    tag: 'span',
+    className: ['pronounce-hint-span'],
+};
+export const pronounceHintHoverTitle: string = 'Enable/Disable pronounce hint';

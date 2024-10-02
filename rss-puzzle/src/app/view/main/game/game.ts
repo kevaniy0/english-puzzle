@@ -99,7 +99,10 @@ class GameView extends View {
             this.hints.audioFile = this.hints.getAudio(item, this.round, this.currentRow);
 
             if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
-                this.hints.translationSentence.getElement().style.opacity = '0';
+                this.hints.translationSentence.getElement().hidden = true;
+            }
+            if (!this.hints.pronounceHintIcon.getElement().classList.contains('pronounce-hint-button--on')) {
+                this.hints.pronounceSentence.getElement().hidden = true;
             }
             this.createCurrentSourceWords(wordsArray);
 
@@ -383,7 +386,7 @@ class GameView extends View {
             eventEmitter.emit('showContinueButton');
             eventEmitter.emit('hideCheckButton');
             eventEmitter.emit('hideAutoCompleteButton');
-            this.showTranslate();
+            this.showHintsAfterSuccess();
             if (this.onClickCard && this.gameField) {
                 this.gameField.removeEventListener('pointerup', this.onClickCard);
             }
@@ -397,23 +400,23 @@ class GameView extends View {
         this.currentAnswerSentence = arrayFromRow.join(' ');
     }
 
-    private onClickTranslationIcon() {
+    private onClickTranslationIcon(): void {
         const translateButton = this.hints.translationIcon.getElement();
         translateButton.addEventListener('click', () => {
             if (translateButton.classList.contains('translate-button--on')) {
                 translateButton.classList.remove('translate-button--on');
                 translateButton.classList.add('translate-button--off');
-                this.hints.translationSentence.getElement().style.opacity = '0';
+                this.hints.translationSentence.getElement().hidden = true;
             } else {
                 translateButton.classList.remove('translate-button--off');
                 translateButton.classList.add('translate-button--on');
-                this.hints.translationSentence.getElement().style.opacity = '1';
+                this.hints.translationSentence.getElement().hidden = false;
             }
         });
     }
 
-    private onPronounceClick = () => {
-        this.hints.pronounceSetntence.getElement().addEventListener('click', () => {
+    private onPronounceClick = (): void => {
+        this.hints.pronounceSentence.getElement().addEventListener('click', () => {
             if (this.hints.audioFile) {
                 this.hints.audioFile.play();
                 eventEmitter.emit('showLoader');
@@ -424,9 +427,25 @@ class GameView extends View {
         });
     };
 
-    private showTranslate(): void {
+    private onPronounceHintClick = (): void => {
+        const pronounceHintButton = this.hints.pronounceHintIcon.getElement();
+        pronounceHintButton.addEventListener('click', () => {
+            if (pronounceHintButton.classList.contains('pronounce-hint-button--on')) {
+                pronounceHintButton.classList.remove('pronounce-hint-button--on');
+                this.hints.pronounceSentence.getElement().hidden = true;
+            } else {
+                pronounceHintButton.classList.add('pronounce-hint-button--on');
+                this.hints.pronounceSentence.getElement().hidden = false;
+            }
+        });
+    };
+
+    private showHintsAfterSuccess(): void {
         if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
-            this.hints.translationSentence.getElement().style.opacity = '1';
+            this.hints.translationSentence.getElement().hidden = false;
+        }
+        if (!this.hints.pronounceSentence.getElement().classList.contains('pronounce-hint-button--on')) {
+            this.hints.pronounceSentence.getElement().hidden = false;
         }
     }
 
@@ -436,6 +455,7 @@ class GameView extends View {
         const buttonField = this.createButtonField();
         this.onClickTranslationIcon();
         this.onPronounceClick();
+        this.onPronounceHintClick();
         this.gameField.append(this.rowField, this.sourceBlock, buttonField);
 
         this.getViewHtml().append(this.hints.getViewHtml(), this.gameField);

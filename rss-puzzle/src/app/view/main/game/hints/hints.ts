@@ -6,6 +6,9 @@ import {
     component,
     iconsWrapper,
     loaderAudio,
+    pronounceHintButton,
+    pronounceHintHoverTitle,
+    pronounceHintSpan,
     pronounceHoverTitle,
     pronounceSpan,
     pronuounceButton,
@@ -22,14 +25,17 @@ class Hints extends View {
     translationSentence: ElementCreator<'p'>;
     translationIcon: ElementCreator<'button'>;
 
-    pronounceSetntence: ElementCreator<'button'>;
+    pronounceSentence: ElementCreator<'button'>;
 
     audioFile: HTMLAudioElement | null;
+
+    pronounceHintIcon: ElementCreator<'button'>;
     constructor() {
         super(component);
         this.translationSentence = this.createTranslate();
         this.translationIcon = this.createTranslateIcon();
-        this.pronounceSetntence = this.createPronounceButton();
+        this.pronounceSentence = this.createPronounceButton();
+        this.pronounceHintIcon = this.createPronounceIcon();
         this.audioFile = null;
         this.configureView();
     }
@@ -65,6 +71,14 @@ class Hints extends View {
         return button;
     }
 
+    private createPronounceIcon(): ElementCreator<'button'> {
+        const button = new ElementCreator<'button'>(pronounceHintButton);
+        const span = new ElementCreator<'span'>(pronounceHintSpan);
+        button.getElement().append(span.getElement());
+        button.getElement().title = pronounceHintHoverTitle;
+        return button;
+    }
+
     public getAudio(collection: Collection, round: number, currentSentence: number): HTMLAudioElement {
         const item = collection.rounds[round].words[currentSentence - 1].audioExample;
         const url = `${audioUrl}${item}`;
@@ -74,12 +88,10 @@ class Hints extends View {
 
     configureView(): void {
         const hintWrapper = this.createHintIcons();
-        hintWrapper.getElement().append(this.translationIcon.getElement());
+        hintWrapper.getElement().append(this.translationIcon.getElement(), this.pronounceHintIcon.getElement());
 
         const sentenceWrapper = new ElementCreator<'div'>(wrapper);
-        sentenceWrapper
-            .getElement()
-            .append(this.pronounceSetntence.getElement(), this.translationSentence.getElement());
+        sentenceWrapper.getElement().append(this.pronounceSentence.getElement(), this.translationSentence.getElement());
 
         this.view.getElement().append(hintWrapper.getElement(), sentenceWrapper.getElement());
     }
