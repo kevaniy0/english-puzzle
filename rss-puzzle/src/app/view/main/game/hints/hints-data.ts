@@ -28,3 +28,13 @@ export const pronounceHintSpan: ElementParams<'span'> = {
     className: ['pronounce-hint-span'],
 };
 export const pronounceHintHoverTitle: string = 'Enable/Disable pronounce hint';
+
+export const backgroundHintIcon: ElementParams<'button'> = {
+    tag: 'button',
+    className: ['hint-icon', 'background-hint-button', 'background-hint-button--on'],
+};
+export const backgroundHintSpan: ElementParams<'span'> = {
+    tag: 'span',
+    className: ['background-hint-span'],
+};
+export const backgroundHintHoverTitle: string = 'show/hide background puzzle';

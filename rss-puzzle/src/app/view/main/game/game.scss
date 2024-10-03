@@ -1,8 +1,6 @@
 .game-section{
     
     .game-field{
-        // border: 1px solid green;
-        // width: 70%;
         max-width: 700px;
         margin: 0 auto;
         display: flex;
@@ -28,6 +26,8 @@
             position: relative;
             cursor: pointer;
             color: white;
+            -webkit-text-stroke: 0.7px black;
+            text-shadow: 0px 0px 15px black;
             border: 1px solid wheat;
             font-family: Acme-Regular, serif;
             font-size: 20px;
@@ -77,9 +77,13 @@
             
             
         }
+
+
         .first-puzzle::before, .last-puzzle::after{
             display: none;
         }
+
+        
         .game-button-field{
             display: flex;
             justify-content: center;

@@ -93,10 +93,8 @@ class GameView extends View {
         const height = this.rowField.clientHeight;
 
         for (let i = 0; i < blocks.length; i += 1) {
-            blocks[i].style.backgroundImage = `url(${this.currentPicture})`;
             blocks[i].style.backgroundSize = `${width}px ${height}px`;
             blocks[i].style.backgroundRepeat = 'no-repeat';
-            blocks[i].style.setProperty('--after-backgroundImage', `url(${this.currentPicture})`);
             blocks[i].style.setProperty('--after-backgroundSize', `${width}px ${height}px`);
             blocks[i].style.backgroundPosition = `-${backgroundShift}px -${40 * (this.currentRow - 1)}px`;
             backgroundShift += parseFloat(blocks[i].style.width);
@@ -109,6 +107,39 @@ class GameView extends View {
                 `-${afterBackgroundShiftX}px -${afterBackgroundShiftY}px`
             );
         }
+    }
+
+    private toggleBackground() {
+        const currentWords: HTMLElement[] = [];
+        const sourceCards = Array.from(this.sourceBlock.children) as HTMLElement[];
+        sourceCards.forEach((item) => {
+            if (item.classList.contains('source-word')) {
+                currentWords.push(item);
+            }
+        });
+        const fild = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLElement[];
+        fild.forEach((item) => {
+            if (item.classList.contains('source-word')) {
+                currentWords.push(item);
+            }
+        });
+        currentWords.forEach((item) => {
+            if (this.hints.backgroundHintIcon.getElement().classList.contains('background-hint-button--on')) {
+                item.style.backgroundImage = `url(${this.currentPicture})`;
+                item.style.setProperty('--after-backgroundImage', `url(${this.currentPicture})`);
+            } else {
+                item.style.backgroundImage = 'none';
+                item.style.setProperty('--after-backgroundImage', 'none');
+            }
+        });
+    }
+
+    private showBackgroundOnCorrect() {
+        const cards = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLElement[];
+        cards.forEach((item) => {
+            item.style.backgroundImage = `url(${this.currentPicture})`;
+            item.style.setProperty('--after-backgroundImage', `url(${this.currentPicture})`);
+        });
     }
 
     private resizeBackground() {
@@ -153,6 +184,7 @@ class GameView extends View {
 
             calculateBlockWidth(this.rowField, arrayWords);
             this.addBackgroundAsPuzzle();
+            this.toggleBackground();
             window.addEventListener('resize', () => {
                 calculateBlockWidth(this.rowField, arrayWords);
                 // this.resizeBackground();
@@ -429,6 +461,7 @@ class GameView extends View {
             eventEmitter.emit('hideCheckButton');
             eventEmitter.emit('hideAutoCompleteButton');
             this.showHintsAfterSuccess();
+            this.showBackgroundOnCorrect();
             if (this.onClickCard && this.gameField) {
                 this.gameField.removeEventListener('pointerup', this.onClickCard);
             }
@@ -482,6 +515,19 @@ class GameView extends View {
         });
     };
 
+    private onBackgroundHintClick = (): void => {
+        const backgroundHint = this.hints.backgroundHintIcon.getElement();
+        backgroundHint.addEventListener('click', () => {
+            if (backgroundHint.classList.contains('background-hint-button--on')) {
+                backgroundHint.classList.remove('background-hint-button--on');
+                this.toggleBackground();
+            } else {
+                backgroundHint.classList.add('background-hint-button--on');
+                this.toggleBackground();
+            }
+        });
+    };
+
     private showHintsAfterSuccess(): void {
         if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
             this.hints.translationSentence.getElement().hidden = false;
@@ -495,6 +541,7 @@ class GameView extends View {
         this.onClickTranslationIcon();
         this.onPronounceClick();
         this.onPronounceHintClick();
+        this.onBackgroundHintClick();
     }
 
     configureView(): void {
@@ -503,7 +550,6 @@ class GameView extends View {
         const buttonField = this.createButtonField();
         this.addHintEvents();
         this.gameField.append(this.rowField, this.sourceBlock, buttonField);
-
         this.getViewHtml().append(this.hints.getViewHtml(), this.gameField);
     }
 }
