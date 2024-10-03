@@ -18,6 +18,7 @@ class GameView extends View {
     level: number = 0;
     round: number = 0;
     currentRow: number = 1;
+    currentPicture: string = '';
     gameField: HTMLDivElement;
     rowField: HTMLDivElement;
     sourceBlock: HTMLDivElement;
@@ -80,6 +81,45 @@ class GameView extends View {
         this.gameField.addEventListener('pointerup', this.onClickCard);
     }
 
+    private addBackgroundAsPuzzle() {
+        const blocks = Array.from(this.sourceBlock.children) as HTMLElement[];
+        blocks.sort((a, b) => {
+            const first = Number(a.id.slice(1));
+            const second = Number(b.id.slice(1));
+            return first - second;
+        });
+        let backgroundShift = 0;
+        const width = this.rowField.clientWidth;
+        const height = this.rowField.clientHeight;
+
+        for (let i = 0; i < blocks.length; i += 1) {
+            blocks[i].style.backgroundImage = `url(${this.currentPicture})`;
+            blocks[i].style.backgroundSize = `${width}px ${height}px`;
+            blocks[i].style.backgroundRepeat = 'no-repeat';
+            blocks[i].style.setProperty('--after-backgroundImage', `url(${this.currentPicture})`);
+            blocks[i].style.setProperty('--after-backgroundSize', `${width}px ${height}px`);
+            blocks[i].style.backgroundPosition = `-${backgroundShift}px -${40 * (this.currentRow - 1)}px`;
+            backgroundShift += parseFloat(blocks[i].style.width);
+
+            const afterBackgroundShiftX = backgroundShift - 2;
+            const afterBackgroundShiftY = 40 * (this.currentRow - 1) + 11.5;
+
+            blocks[i].style.setProperty(
+                '--after-backgroundPosition',
+                `-${afterBackgroundShiftX}px -${afterBackgroundShiftY}px`
+            );
+        }
+    }
+
+    private resizeBackground() {
+        const field = Array.from(this.rowField.children) as HTMLElement[];
+        field.forEach((item) => {
+            (Array.from(item.children) as HTMLElement[]).forEach((card) => {
+                card.style.backgroundSize = `${this.rowField.clientWidth}px ${this.rowField.clientHeight}px`;
+            });
+        });
+    }
+
     private configureAsnwerRow() {
         const quantityClearBlocks = Array.from(this.sourceBlock.children).length;
         for (let i = 0; i < quantityClearBlocks; i += 1) {
@@ -97,7 +137,7 @@ class GameView extends View {
                 item.rounds[this.round].words[this.currentRow - 1].textExampleTranslate
             );
             this.hints.audioFile = this.hints.getAudio(item, this.round, this.currentRow);
-
+            this.currentPicture = `${GAME.backgroundUrl}${item.rounds[this.round].levelData.imageSrc}`;
             if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
                 this.hints.translationSentence.getElement().hidden = true;
             }
@@ -112,8 +152,10 @@ class GameView extends View {
             this.onDragCard();
 
             calculateBlockWidth(this.rowField, arrayWords);
+            this.addBackgroundAsPuzzle();
             window.addEventListener('resize', () => {
                 calculateBlockWidth(this.rowField, arrayWords);
+                // this.resizeBackground();
             });
             eventEmitter.emit('disableCheckButton');
             eventEmitter.emit('showAutoCompleteButton');
@@ -449,13 +491,17 @@ class GameView extends View {
         }
     }
 
+    private addHintEvents() {
+        this.onClickTranslationIcon();
+        this.onPronounceClick();
+        this.onPronounceHintClick();
+    }
+
     configureView(): void {
         this.configureGame();
         this.updateRowField();
         const buttonField = this.createButtonField();
-        this.onClickTranslationIcon();
-        this.onPronounceClick();
-        this.onPronounceHintClick();
+        this.addHintEvents();
         this.gameField.append(this.rowField, this.sourceBlock, buttonField);
 
         this.getViewHtml().append(this.hints.getViewHtml(), this.gameField);

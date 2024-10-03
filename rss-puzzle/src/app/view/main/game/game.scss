@@ -1,12 +1,16 @@
 .game-section{
     
     .game-field{
-        border: 1px solid green;
-        width: 70%;
+        // border: 1px solid green;
+        // width: 70%;
+        max-width: 700px;
         margin: 0 auto;
         display: flex;
         flex-direction: column;
         user-select: none;
+        &__rows-field {
+            width: 100%;
+        }
         &__row{
             display: flex;
             height: 40px;
@@ -19,8 +23,6 @@
             margin: 40px auto;
             height: 40px;
             pointer-events: all;
-            
-            
         }
         .source-word{
             position: relative;
@@ -38,18 +40,23 @@
                 transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.5s ease;
             }
 
+            --after-backgroundImage: none;
+            --after-backgroundSize: '0 0';
+            --after-backgroundPosition: '0 0';
+
             &::before {
                 z-index: 10;
                 content: "";
                 box-sizing: border-box;
                 position: absolute;
-                width: 7px;
+                width: 6px;
                 height: 14px;
-                left: 0%;
+                left: -1px;
                 top: calc(50% - 7px);
                 background-color: #0f0d13;
                 border-top-right-radius: 7px;
                 border-bottom-right-radius: 7px;
+                background-repeat: no-repeat;
             }
             &::after {
                 z-index: 11;
@@ -63,6 +70,9 @@
                 background-color: #02315E;
                 border-top-right-radius: 7px;
                 border-bottom-right-radius: 7px;
+                background-image: var(--after-backgroundImage);
+                background-size: var(--after-backgroundSize);
+                background-position: var(--after-backgroundPosition);
             }
             
             
