@@ -2,6 +2,7 @@ import './popup.scss';
 import Router from '../../router/router';
 import ElementCreator from '../elementCreator/elementCreator';
 import { ElementParams } from '../elementCreator/elementCreator';
+import storage from '../../services/storage-service';
 
 class PopupCreator {
     router: Router;
@@ -89,8 +90,7 @@ class PopupCreator {
     }
 
     confirmLogout(logout: ElementCreator<'a'>) {
-        localStorage.removeItem('user_name_english_puzzle');
-        localStorage.removeItem('user_last_name_english_puzzle');
+        storage.removeUser();
         this.getElement().hidden = true;
         logout!.getElement().style.display = 'none';
     }

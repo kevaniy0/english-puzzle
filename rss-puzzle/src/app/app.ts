@@ -8,6 +8,7 @@ import View from './view/view';
 import LoginView from './view/main/login/login';
 import GreetingView from './view/main/greeting/greeting';
 import GameView from './view/main/game/game';
+import storage from './services/storage-service';
 
 class App {
     private container: ElementCreator<'div'>;
@@ -32,7 +33,7 @@ class App {
         this.header = new Header(this.router);
         container.append(this.header.getViewHtml());
 
-        if (this.checkUserExistence()) {
+        if (storage.checkUserExistence()) {
             this.main = new MainView(new GreetingView(this.router));
         } else {
             this.main = new MainView(new LoginView(this.router));
@@ -71,12 +72,5 @@ class App {
     public setContentPages(view: View) {
         if (this.main) this.main.configureView(view);
     }
-    public checkUserExistence(): boolean {
-        const name = localStorage.getItem('user_name_english_puzzle');
-        const lastName = localStorage.getItem('user_last_name_english_puzzle');
-        if (name && lastName) return true;
-        return false;
-    }
 }
-
 export default App;

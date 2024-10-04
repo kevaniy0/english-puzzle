@@ -4,6 +4,7 @@ import FormCreator from '../../../utils/formCreator/formCreator';
 import View from '../../view';
 import * as LOGIN from './data';
 import Router from '../../../router/router';
+import storage from '../../../services/storage-service';
 
 class LoginView extends View {
     router: Router;
@@ -34,9 +35,7 @@ class LoginView extends View {
 
             const name = inputName.getElement().value;
             const lastName = inputLastName.getElement().value;
-
-            localStorage.setItem('user_name_english_puzzle', name);
-            localStorage.setItem('user_last_name_english_puzzle', lastName);
+            storage.createUser({ firstName: name, lastName: lastName });
             this.router.navigate('greeting');
         });
         form.checkButtonStatus(inputName.getElement(), inputLastName.getElement(), loginBtn.getElement());

@@ -4,6 +4,7 @@ import ElementCreator from '../../../utils/elementCreator/elementCreator';
 import * as GREETING from './greeting-data';
 
 import Router from '../../../router/router';
+import storage from '../../../services/storage-service';
 class GreetingView extends View {
     router: Router;
     constructor(router: Router) {
@@ -37,8 +38,8 @@ class GreetingView extends View {
     }
 
     private getUserInfo(): [string, string] {
-        const name = localStorage.getItem('user_name_english_puzzle');
-        const lastName = localStorage.getItem('user_last_name_english_puzzle');
+        const name = storage.USER_DATA?.user.firstName;
+        const lastName = storage.USER_DATA?.user.lastName;
         if (name && lastName) return [name, lastName];
         return ['undefined', 'undefined'];
     }

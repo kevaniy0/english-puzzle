@@ -10,6 +10,7 @@ import swapElements from '../../../utils/helpers/swapElements';
 import eventEmitter from '../../../utils/eventEmitter/eventEmitter';
 import { checkCorrectnessSentence, disableButton, enableButton, hideButton, showButton } from './game-events';
 import Hints from './hints/hints';
+import storage from '../../../services/storage-service';
 
 class GameView extends View {
     router: Router;
@@ -475,18 +476,30 @@ class GameView extends View {
         this.currentAnswerSentence = arrayFromRow.join(' ');
     }
 
-    private onClickTranslationIcon(): void {
+    private enableTranslateHint = (btn: HTMLButtonElement) => {
+        btn.classList.remove('translate-button--off');
+        btn.classList.add('translate-button--on');
+        this.hints.translationSentence.getElement().hidden = false;
+        storage.USER_DATA!.settings.translateHint = true;
+    };
+
+    private disableTranslateHint = (btn: HTMLButtonElement) => {
+        btn.classList.remove('translate-button--on');
+        btn.classList.add('translate-button--off');
+        this.hints.translationSentence.getElement().hidden = true;
+        storage.USER_DATA!.settings.translateHint = false;
+    };
+
+    private onClickTranslationIcon() {
         const translateButton = this.hints.translationIcon.getElement();
         translateButton.addEventListener('click', () => {
-            if (translateButton.classList.contains('translate-button--on')) {
-                translateButton.classList.remove('translate-button--on');
-                translateButton.classList.add('translate-button--off');
-                this.hints.translationSentence.getElement().hidden = true;
+            const translateSettings = storage.USER_DATA!.settings.translateHint;
+            if (translateSettings) {
+                this.disableTranslateHint(translateButton);
             } else {
-                translateButton.classList.remove('translate-button--off');
-                translateButton.classList.add('translate-button--on');
-                this.hints.translationSentence.getElement().hidden = false;
+                this.enableTranslateHint(translateButton);
             }
+            storage.updateStorage();
         });
     }
 
@@ -505,28 +518,51 @@ class GameView extends View {
     private onPronounceHintClick = (): void => {
         const pronounceHintButton = this.hints.pronounceHintIcon.getElement();
         pronounceHintButton.addEventListener('click', () => {
-            if (pronounceHintButton.classList.contains('pronounce-hint-button--on')) {
-                pronounceHintButton.classList.remove('pronounce-hint-button--on');
-                this.hints.pronounceSentence.getElement().hidden = true;
+            const pronounceSettings = storage.USER_DATA!.settings.pronounceHint;
+            if (pronounceSettings) {
+                this.disablePronounceHint(pronounceHintButton);
             } else {
-                pronounceHintButton.classList.add('pronounce-hint-button--on');
-                this.hints.pronounceSentence.getElement().hidden = false;
+                this.enablePronounceHint(pronounceHintButton);
             }
+            storage.updateStorage();
         });
     };
 
+    private enablePronounceHint(btn: HTMLButtonElement): void {
+        btn.classList.add('pronounce-hint-button--on');
+        this.hints.pronounceSentence.getElement().hidden = false;
+        storage.USER_DATA!.settings.pronounceHint = true;
+    }
+
+    private disablePronounceHint(btn: HTMLButtonElement): void {
+        btn.classList.remove('pronounce-hint-button--on');
+        this.hints.pronounceSentence.getElement().hidden = true;
+        storage.USER_DATA!.settings.pronounceHint = false;
+    }
     private onBackgroundHintClick = (): void => {
         const backgroundHint = this.hints.backgroundHintIcon.getElement();
         backgroundHint.addEventListener('click', () => {
-            if (backgroundHint.classList.contains('background-hint-button--on')) {
-                backgroundHint.classList.remove('background-hint-button--on');
-                this.toggleBackground();
+            const backgroundSettings = storage.USER_DATA!.settings.backgroundHint;
+            if (backgroundSettings) {
+                this.disableBackgroundHint(backgroundHint);
             } else {
-                backgroundHint.classList.add('background-hint-button--on');
-                this.toggleBackground();
+                this.enableBackgroundHint(backgroundHint);
             }
+            storage.updateStorage();
         });
     };
+
+    private enableBackgroundHint(btn: HTMLButtonElement): void {
+        btn.classList.add('background-hint-button--on');
+        this.toggleBackground();
+        storage.USER_DATA!.settings.backgroundHint = true;
+    }
+
+    private disableBackgroundHint(btn: HTMLButtonElement): void {
+        btn.classList.remove('background-hint-button--on');
+        this.toggleBackground();
+        storage.USER_DATA!.settings.backgroundHint = false;
+    }
 
     private showHintsAfterSuccess(): void {
         if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
@@ -544,11 +580,25 @@ class GameView extends View {
         this.onBackgroundHintClick();
     }
 
+    private setUserSettings() {
+        const settings = storage.USER_DATA!.settings;
+        if (!settings.translateHint) {
+            this.disableTranslateHint(this.hints.translationIcon.getElement());
+        }
+        if (!settings.pronounceHint) {
+            this.disablePronounceHint(this.hints.pronounceHintIcon.getElement());
+        }
+        if (!settings.backgroundHint) {
+            this.disableBackgroundHint(this.hints.backgroundHintIcon.getElement());
+        }
+    }
+
     configureView(): void {
         this.configureGame();
         this.updateRowField();
         const buttonField = this.createButtonField();
         this.addHintEvents();
+        this.setUserSettings();
         this.gameField.append(this.rowField, this.sourceBlock, buttonField);
         this.getViewHtml().append(this.hints.getViewHtml(), this.gameField);
     }
