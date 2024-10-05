@@ -49,24 +49,4 @@ export const page: ElementParams<'section'> = { tag: 'section', className: ['gam
 export const field: ElementParams<'div'> = { tag: 'div', className: ['game-field'] };
 export const rowsFild: ElementParams<'div'> = { tag: 'div', className: ['game-field__rows-field'] };
 export const row: ElementParams<'div'> = { tag: 'div', className: ['game-field__row'] };
-export const cell: ElementParams<'div'> = { tag: 'div', className: ['game-field__cell'] };
 export const sourceWords: ElementParams<'div'> = { tag: 'div', className: ['game-field__source-words'] };
-
-export const buttonWrapper: ElementParams<'div'> = { tag: 'div', className: ['game-button-field'] };
-
-export const continueButton: ElementParams<'button'> = {
-    tag: 'button',
-    className: ['btn', 'btn-continue'],
-    textContent: 'Continue',
-};
-
-export const checkButton: ElementParams<'button'> = {
-    tag: 'button',
-    className: ['btn', 'btn-check'],
-    textContent: 'Check',
-};
-export const autoComplete: ElementParams<'button'> = {
-    tag: 'button',
-    className: ['btn', 'btn-auto-complete', 'btn--active'],
-    textContent: 'Auto-Complete',
-};

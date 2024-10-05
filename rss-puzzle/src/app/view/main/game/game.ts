@@ -8,12 +8,13 @@ import getJson from '../../../utils/helpers/getJson';
 import calculateBlockWidth from '../../../utils/helpers/calculateWidth';
 import swapElements from '../../../utils/helpers/swapElements';
 import eventEmitter from '../../../utils/eventEmitter/eventEmitter';
-import { checkCorrectnessSentence, disableButton, enableButton, hideButton, showButton } from './game-events';
 import Hints from './hints/hints';
 import storage from '../../../services/storage-service';
+import ButtonsField from './buttons-field/buttons-field';
 
 class GameView extends View {
     router: Router;
+    buttonField: ButtonsField;
     collection: Promise<GAME.Collection>;
     hints: Hints;
     level: number = 0;
@@ -34,6 +35,7 @@ class GameView extends View {
         currentY: 0,
     };
     dragging: boolean = false;
+    timer: GAME.Timer = { removeClasses: null };
     onClickCard?: (event: PointerEvent) => void;
     constructor(router: Router) {
         super(GAME.page);
@@ -43,7 +45,11 @@ class GameView extends View {
         this.sourceBlock = this.createSourceBlock();
         this.collection = getJson('./data/wordCollectionLevel1.json');
         this.hints = new Hints();
-
+        this.buttonField = new ButtonsField(
+            this.onClickCheck.bind(this),
+            this.onClickContinue.bind(this),
+            this.onClickAutoComplete.bind(this)
+        );
         this.configureView();
     }
 
@@ -190,8 +196,8 @@ class GameView extends View {
                 calculateBlockWidth(this.rowField, arrayWords);
                 // this.resizeBackground();
             });
-            eventEmitter.emit('disableCheckButton');
-            eventEmitter.emit('showAutoCompleteButton');
+            this.buttonField.disableButton(this.buttonField.checkButton.getElement());
+            this.buttonField.showButton(this.buttonField.autoCompleteButton.getElement());
         });
     }
 
@@ -225,87 +231,28 @@ class GameView extends View {
         this.dragging = false;
     }
 
-    private createContinueButton(): HTMLButtonElement {
-        const btn = new ElementCreator(GAME.continueButton);
-        btn.getElement().addEventListener('click', () => {
-            if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
-            eventEmitter.emit('hideContinueButton');
-            eventEmitter.emit('showCheckButton');
-
-            this.currentRow += 1;
-            if (this.currentRow === 11) {
-                this.round += 1;
-                this.currentRow = 1;
-                this.updateRowField();
-            }
-
-            if (this.gameField) this.configureGame();
-        });
-
-        eventEmitter.subscribe('showContinueButton', showButton.bind(null, btn.getElement()));
-        eventEmitter.subscribe('hideContinueButton', hideButton.bind(null, btn.getElement()));
-        return btn.getElement();
-    }
-
-    private createCheckButton(): HTMLButtonElement {
-        const btn = new ElementCreator(GAME.checkButton);
-        btn.getElement().disabled = true;
-        const timer: GAME.Timer = { removeClasses: null };
-        btn.getElement().addEventListener('click', () => {
-            if (!checkCorrectnessSentence(this.sourceSentence, this.currentAnswerSentence)) {
-                this.paintCheckBlocks(this.sourceSentence, this.currentAnswerSentence, timer);
-            }
-        });
-
-        eventEmitter.subscribe('showCheckButton', showButton.bind(null, btn.getElement()));
-        eventEmitter.subscribe('hideCheckButton', hideButton.bind(null, btn.getElement()));
-        eventEmitter.subscribe('enableCheckButton', enableButton.bind(null, btn.getElement()));
-        eventEmitter.subscribe('disableCheckButton', disableButton.bind(null, btn.getElement()));
-        return btn.getElement();
-    }
-
-    private createAutoCompleteButton(): HTMLButtonElement {
-        const btn = new ElementCreator(GAME.autoComplete);
-
-        btn.getElement().addEventListener('click', this.onAutoComplete.bind(this));
-
-        eventEmitter.subscribe('hideAutoCompleteButton', hideButton.bind(null, btn.getElement()));
-        eventEmitter.subscribe('showAutoCompleteButton', showButton.bind(null, btn.getElement()));
-
-        return btn.getElement();
-    }
-
-    private createButtonField(): HTMLDivElement {
-        const buttonWrapper = new ElementCreator(GAME.buttonWrapper);
-        const checkButton = this.createCheckButton();
-        const autoCompleteButton = this.createAutoCompleteButton();
-        const continueBtn = this.createContinueButton();
-        buttonWrapper.getElement().append(checkButton, autoCompleteButton, continueBtn);
-        return buttonWrapper.getElement();
-    }
-
-    private paintCheckBlocks(correctSentence: string, currentSentence: string, timer: GAME.Timer): void {
-        const currentBlocks = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLElement[];
-        const correctWords = correctSentence.split(' ');
-        const currentWords = currentSentence.split(' ');
-        if (timer.removeClasses) {
-            clearTimeout(timer.removeClasses);
-            currentBlocks.forEach((item) => item.classList.remove('paint-wrong', 'paint-true'));
+    private onClickCheck(): void {
+        if (this.sourceSentence !== this.currentAnswerSentence) {
+            this.paintCheckBlocks(this.sourceSentence, this.currentAnswerSentence, this.timer);
         }
-        for (let i = 0; i < correctWords.length; i += 1) {
-            currentBlocks[i].classList.remove('paint-wrong', 'paint-true');
-            if (correctWords[i] === currentWords[i]) {
-                currentBlocks[i].classList.add('paint-true');
-            } else {
-                currentBlocks[i].classList.add('paint-wrong');
-            }
-        }
-        timer.removeClasses = setTimeout(() => {
-            currentBlocks.forEach((item) => item.classList.remove('paint-wrong', 'paint-true'));
-        }, 3000);
     }
 
-    private onAutoComplete(): void {
+    private onClickContinue(): void {
+        if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
+        this.buttonField.hideButton(this.buttonField.continueButton.getElement());
+        this.buttonField.showButton(this.buttonField.checkButton.getElement());
+
+        this.currentRow += 1;
+        if (this.currentRow === 11) {
+            this.round += 1;
+            this.currentRow = 1;
+            this.updateRowField();
+        }
+
+        if (this.gameField) this.configureGame();
+    }
+
+    private onClickAutoComplete() {
         const wordsFromSource = Array.from(this.sourceBlock.children).filter((item) =>
             item.classList.contains('source-word')
         );
@@ -331,6 +278,27 @@ class GameView extends View {
         this.updateAnswerSentence(row);
         this.checkFullFilledRow(row);
         this.onDragCardRemove();
+    }
+
+    private paintCheckBlocks(correctSentence: string, currentSentence: string, timer: GAME.Timer): void {
+        const currentBlocks = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLElement[];
+        const correctWords = correctSentence.split(' ');
+        const currentWords = currentSentence.split(' ');
+        if (timer.removeClasses) {
+            clearTimeout(timer.removeClasses);
+            currentBlocks.forEach((item) => item.classList.remove('paint-wrong', 'paint-true'));
+        }
+        for (let i = 0; i < correctWords.length; i += 1) {
+            currentBlocks[i].classList.remove('paint-wrong', 'paint-true');
+            if (correctWords[i] === currentWords[i]) {
+                currentBlocks[i].classList.add('paint-true');
+            } else {
+                currentBlocks[i].classList.add('paint-wrong');
+            }
+        }
+        timer.removeClasses = setTimeout(() => {
+            currentBlocks.forEach((item) => item.classList.remove('paint-wrong', 'paint-true'));
+        }, 3000);
     }
 
     private onDragCard(): void {
@@ -454,20 +422,20 @@ class GameView extends View {
         const arrayFromRow = Array.from(answerRow.children);
         const result = arrayFromRow.every((item) => !item.classList.contains('clear-card'));
         if (!result) {
-            eventEmitter.emit('disableCheckButton');
+            this.buttonField.disableButton(this.buttonField.checkButton.getElement());
             return;
         }
-        if (checkCorrectnessSentence(this.sourceSentence, this.currentAnswerSentence)) {
-            eventEmitter.emit('showContinueButton');
-            eventEmitter.emit('hideCheckButton');
-            eventEmitter.emit('hideAutoCompleteButton');
+        if (this.sourceSentence === this.currentAnswerSentence) {
+            this.buttonField.showButton(this.buttonField.continueButton.getElement());
+            this.buttonField.hideButton(this.buttonField.checkButton.getElement());
+            this.buttonField.hideButton(this.buttonField.autoCompleteButton.getElement());
             this.showHintsAfterSuccess();
             this.showBackgroundOnCorrect();
             if (this.onClickCard && this.gameField) {
                 this.gameField.removeEventListener('pointerup', this.onClickCard);
             }
         } else {
-            eventEmitter.emit('enableCheckButton');
+            this.buttonField.enableButton(this.buttonField.checkButton.getElement());
         }
     }
 
@@ -596,10 +564,9 @@ class GameView extends View {
     configureView(): void {
         this.configureGame();
         this.updateRowField();
-        const buttonField = this.createButtonField();
         this.addHintEvents();
         this.setUserSettings();
-        this.gameField.append(this.rowField, this.sourceBlock, buttonField);
+        this.gameField.append(this.rowField, this.sourceBlock, this.buttonField.getViewHtml());
         this.getViewHtml().append(this.hints.getViewHtml(), this.gameField);
     }
 }
