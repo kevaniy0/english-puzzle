@@ -30,18 +30,17 @@ class StorageService {
         this.getUser();
     }
 
+    private getUser(): void {
+        const user = localStorage.getItem(this.USER_KEY);
+        if (user) {
+            this.USER_DATA = JSON.parse(user);
+        }
+    }
     public createUser(obj: User): void {
         const user: UserData = { user: obj, settings: userDefaultSettings };
         this.USER_DATA = user;
         const json = JSON.stringify(user);
         localStorage.setItem(`${this.USER_KEY}`, json);
-    }
-
-    private getUser() {
-        const user = localStorage.getItem(this.USER_KEY);
-        if (user) {
-            this.USER_DATA = JSON.parse(user);
-        }
     }
 
     public checkUserExistence(): boolean {

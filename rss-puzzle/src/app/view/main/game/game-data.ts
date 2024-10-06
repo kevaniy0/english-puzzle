@@ -50,3 +50,5 @@ export const field: ElementParams<'div'> = { tag: 'div', className: ['game-field
 export const rowsFild: ElementParams<'div'> = { tag: 'div', className: ['game-field__rows-field'] };
 export const row: ElementParams<'div'> = { tag: 'div', className: ['game-field__row'] };
 export const sourceWords: ElementParams<'div'> = { tag: 'div', className: ['game-field__source-words'] };
+
+export const settingsField: ElementParams<'div'> = { tag: 'div', className: ['settings-field'] };

@@ -10,22 +10,19 @@ import swapElements from '../../../utils/helpers/swapElements';
 import eventEmitter from '../../../utils/eventEmitter/eventEmitter';
 import Hints from './hints/hints';
 import storage from '../../../services/storage-service';
+import { gameData } from '../../../services/game-data';
 import ButtonsField from './buttons-field/buttons-field';
+import SelectionField from './selection-field/selection-field';
 
 class GameView extends View {
     router: Router;
-    buttonField: ButtonsField;
     collection: Promise<GAME.Collection>;
+    buttonField: ButtonsField;
     hints: Hints;
-    level: number = 0;
-    round: number = 0;
-    currentRow: number = 1;
-    currentPicture: string = '';
+    selectionField: SelectionField;
     gameField: HTMLDivElement;
     rowField: HTMLDivElement;
     sourceBlock: HTMLDivElement;
-    sourceSentence: string = '';
-    currentAnswerSentence: string = '';
     checkDrag: GAME.CheckDrag = {
         element: null,
         DRAX_PX: 10,
@@ -43,13 +40,14 @@ class GameView extends View {
         this.gameField = this.createGameField();
         this.rowField = this.createRowsField();
         this.sourceBlock = this.createSourceBlock();
-        this.collection = getJson('./data/wordCollectionLevel1.json');
+        this.collection = getJson(`./data/wordCollectionLevel${gameData.level + 1}.json`);
         this.hints = new Hints();
         this.buttonField = new ButtonsField(
             this.onClickCheck.bind(this),
             this.onClickContinue.bind(this),
             this.onClickAutoComplete.bind(this)
         );
+        this.selectionField = new SelectionField(this.onChangeLevel.bind(this), this.onChangeRound.bind(this));
         this.configureView();
     }
 
@@ -103,11 +101,11 @@ class GameView extends View {
             blocks[i].style.backgroundSize = `${width}px ${height}px`;
             blocks[i].style.backgroundRepeat = 'no-repeat';
             blocks[i].style.setProperty('--after-backgroundSize', `${width}px ${height}px`);
-            blocks[i].style.backgroundPosition = `-${backgroundShift}px -${40 * (this.currentRow - 1)}px`;
+            blocks[i].style.backgroundPosition = `-${backgroundShift}px -${40 * (gameData.currentRow - 1)}px`;
             backgroundShift += parseFloat(blocks[i].style.width);
 
             const afterBackgroundShiftX = backgroundShift - 2;
-            const afterBackgroundShiftY = 40 * (this.currentRow - 1) + 11.5;
+            const afterBackgroundShiftY = 40 * (gameData.currentRow - 1) + 11.5;
 
             blocks[i].style.setProperty(
                 '--after-backgroundPosition',
@@ -124,7 +122,7 @@ class GameView extends View {
                 currentWords.push(item);
             }
         });
-        const fild = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLElement[];
+        const fild = Array.from(this.rowField.children[gameData.currentRow - 1].children) as HTMLElement[];
         fild.forEach((item) => {
             if (item.classList.contains('source-word')) {
                 currentWords.push(item);
@@ -132,8 +130,8 @@ class GameView extends View {
         });
         currentWords.forEach((item) => {
             if (this.hints.backgroundHintIcon.getElement().classList.contains('background-hint-button--on')) {
-                item.style.backgroundImage = `url(${this.currentPicture})`;
-                item.style.setProperty('--after-backgroundImage', `url(${this.currentPicture})`);
+                item.style.backgroundImage = `url(${gameData.currentPuctire})`;
+                item.style.setProperty('--after-backgroundImage', `url(${gameData.currentPuctire})`);
             } else {
                 item.style.backgroundImage = 'none';
                 item.style.setProperty('--after-backgroundImage', 'none');
@@ -142,10 +140,10 @@ class GameView extends View {
     }
 
     private showBackgroundOnCorrect() {
-        const cards = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLElement[];
+        const cards = Array.from(this.rowField.children[gameData.currentRow - 1].children) as HTMLElement[];
         cards.forEach((item) => {
-            item.style.backgroundImage = `url(${this.currentPicture})`;
-            item.style.setProperty('--after-backgroundImage', `url(${this.currentPicture})`);
+            item.style.backgroundImage = `url(${gameData.currentPuctire})`;
+            item.style.setProperty('--after-backgroundImage', `url(${gameData.currentPuctire})`);
         });
     }
 
@@ -162,20 +160,22 @@ class GameView extends View {
         const quantityClearBlocks = Array.from(this.sourceBlock.children).length;
         for (let i = 0; i < quantityClearBlocks; i += 1) {
             const clearCard = this.createCard({ tag: 'div', className: ['clear-card'] });
-            this.rowField.children[this.currentRow - 1].append(clearCard);
+            this.rowField.children[gameData.currentRow - 1].append(clearCard);
         }
     }
 
     private configureGame() {
         this.updateSourceBlock();
         this.collection.then((item) => {
-            const wordsArray: string[] = item.rounds[this.round].words[this.currentRow - 1].textExample.split(' ');
-            this.sourceSentence = wordsArray.join(' ');
+            const wordsArray: string[] =
+                item.rounds[gameData.round].words[gameData.currentRow - 1].textExample.split(' ');
+            gameData.correctSentence = wordsArray.join(' ');
+            this.selectionField.updateTotalRounds(item.roundsCount);
             this.hints.translationSentence.setTextContent(
-                item.rounds[this.round].words[this.currentRow - 1].textExampleTranslate
+                item.rounds[gameData.round].words[gameData.currentRow - 1].textExampleTranslate
             );
-            this.hints.audioFile = this.hints.getAudio(item, this.round, this.currentRow);
-            this.currentPicture = `${GAME.backgroundUrl}${item.rounds[this.round].levelData.imageSrc}`;
+            this.hints.audioFile = this.hints.getAudio(item, gameData.round, gameData.currentRow);
+            gameData.currentPuctire = `${GAME.backgroundUrl}${item.rounds[gameData.round].levelData.imageSrc}`;
             if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
                 this.hints.translationSentence.getElement().hidden = true;
             }
@@ -219,12 +219,13 @@ class GameView extends View {
     }
 
     private createCallbackCard(event: PointerEvent) {
+        console.log('da');
         const target = event.target! as HTMLElement;
         if (!target.classList.contains('source-word')) return;
         if (this.wasDraggin(event.clientX, event.clientY)) return;
 
         target.classList.remove('paint-wrong', 'paint-true', 'source-word--selected');
-        const currentRow = Array.from(this.rowField.children)[this.currentRow - 1] as HTMLElement;
+        const currentRow = Array.from(this.rowField.children)[gameData.currentRow - 1] as HTMLElement;
         swapElements(target, currentRow, this.sourceBlock);
         this.updateAnswerSentence(currentRow);
         this.checkFullFilledRow(currentRow);
@@ -232,8 +233,8 @@ class GameView extends View {
     }
 
     private onClickCheck(): void {
-        if (this.sourceSentence !== this.currentAnswerSentence) {
-            this.paintCheckBlocks(this.sourceSentence, this.currentAnswerSentence, this.timer);
+        if (gameData.correctSentence !== gameData.currentAnswerSentence) {
+            this.paintCheckBlocks(gameData.correctSentence, gameData.currentAnswerSentence, this.timer);
         }
     }
 
@@ -242,11 +243,12 @@ class GameView extends View {
         this.buttonField.hideButton(this.buttonField.continueButton.getElement());
         this.buttonField.showButton(this.buttonField.checkButton.getElement());
 
-        this.currentRow += 1;
-        if (this.currentRow === 11) {
-            this.round += 1;
-            this.currentRow = 1;
+        gameData.currentRow += 1;
+        if (gameData.currentRow === 11) {
+            gameData.round += 1;
+            gameData.currentRow = 1;
             this.updateRowField();
+            // this.onChangeRound();
         }
 
         if (this.gameField) this.configureGame();
@@ -256,11 +258,11 @@ class GameView extends View {
         const wordsFromSource = Array.from(this.sourceBlock.children).filter((item) =>
             item.classList.contains('source-word')
         );
-        const wordsFromAnswerRow = Array.from(this.rowField.children[this.currentRow - 1].children).filter((item) =>
+        const wordsFromAnswerRow = Array.from(this.rowField.children[gameData.currentRow - 1].children).filter((item) =>
             item.classList.contains('source-word')
         );
         const neededBlock = [...wordsFromSource, ...wordsFromAnswerRow];
-        const row = this.rowField.children[this.currentRow - 1] as HTMLElement;
+        const row = this.rowField.children[gameData.currentRow - 1] as HTMLElement;
         while (row.firstElementChild) {
             row.firstElementChild.remove();
         }
@@ -281,7 +283,7 @@ class GameView extends View {
     }
 
     private paintCheckBlocks(correctSentence: string, currentSentence: string, timer: GAME.Timer): void {
-        const currentBlocks = Array.from(this.rowField.children[this.currentRow - 1].children) as HTMLElement[];
+        const currentBlocks = Array.from(this.rowField.children[gameData.currentRow - 1].children) as HTMLElement[];
         const correctWords = correctSentence.split(' ');
         const currentWords = currentSentence.split(' ');
         if (timer.removeClasses) {
@@ -303,7 +305,7 @@ class GameView extends View {
 
     private onDragCard(): void {
         const zoneSource = this.sourceBlock as HTMLElement;
-        const zoneAnswer = this.rowField.children[this.currentRow - 1] as HTMLElement;
+        const zoneAnswer = this.rowField.children[gameData.currentRow - 1] as HTMLElement;
 
         zoneSource.addEventListener('pointerdown', this.onPointerDown);
         zoneSource.addEventListener('pointerup', this.onPointerUp);
@@ -314,7 +316,7 @@ class GameView extends View {
 
     private onDragCardRemove() {
         const zoneSource = this.sourceBlock as HTMLElement;
-        const zoneAnswer = this.rowField.children[this.currentRow - 1] as HTMLElement;
+        const zoneAnswer = this.rowField.children[gameData.currentRow - 1] as HTMLElement;
 
         zoneSource.removeEventListener('pointerdown', this.onPointerDown);
         zoneSource.removeEventListener('pointerup', this.onPointerUp);
@@ -365,26 +367,26 @@ class GameView extends View {
             // *** Если взяли элемент из source block
 
             if (
-                hovered.classList.contains(`row-${this.currentRow}`) ||
+                hovered.classList.contains(`row-${gameData.currentRow}`) ||
                 (hovered.classList.contains(`clear-card`) &&
-                    hoveredParent?.classList.contains(`row-${this.currentRow}`))
+                    hoveredParent?.classList.contains(`row-${gameData.currentRow}`))
             ) {
                 // * Если навелись на область строки с ответом или пустую ячейку (вставляем вначало)
-                swapElements(element, this.rowField.children[this.currentRow - 1] as HTMLElement, this.sourceBlock);
+                swapElements(element, this.rowField.children[gameData.currentRow - 1] as HTMLElement, this.sourceBlock);
             } else if (
                 hovered.classList.contains(`source-word`) &&
-                hoveredParent?.classList.contains(`row-${this.currentRow}`)
+                hoveredParent?.classList.contains(`row-${gameData.currentRow}`)
             ) {
                 // * Если навели на вставленную карточку в строке с ответами (вставляем перед наведенным элементом)
-                swapElements(element, this.rowField.children[this.currentRow - 1] as HTMLElement, this.sourceBlock);
-                (this.rowField.children[this.currentRow - 1] as HTMLElement).insertBefore(element, hovered);
+                swapElements(element, this.rowField.children[gameData.currentRow - 1] as HTMLElement, this.sourceBlock);
+                (this.rowField.children[gameData.currentRow - 1] as HTMLElement).insertBefore(element, hovered);
             }
-        } else if (element.parentElement?.classList.contains(`row-${this.currentRow}`)) {
+        } else if (element.parentElement?.classList.contains(`row-${gameData.currentRow}`)) {
             // *** Если взяли элемент из answer row
 
             if (
                 hovered.classList.contains('source-word') &&
-                hoveredParent?.classList.contains(`row-${this.currentRow}`)
+                hoveredParent?.classList.contains(`row-${gameData.currentRow}`)
             ) {
                 // * Если меняем элементы в строке ответов
                 const tempNode = document.createElement('div');
@@ -393,12 +395,12 @@ class GameView extends View {
                 elementParent?.replaceChild(hovered, tempNode);
             } else if (hoveredParent?.classList.contains('game-field__source-words')) {
                 // * Если из строки ответов тянем в строку слов
-                swapElements(element, this.rowField.children[this.currentRow - 1] as HTMLElement, this.sourceBlock);
+                swapElements(element, this.rowField.children[gameData.currentRow - 1] as HTMLElement, this.sourceBlock);
             }
         }
 
-        this.updateAnswerSentence(this.rowField.children[this.currentRow - 1] as HTMLElement);
-        this.checkFullFilledRow(this.rowField.children[this.currentRow - 1] as HTMLElement);
+        this.updateAnswerSentence(this.rowField.children[gameData.currentRow - 1] as HTMLElement);
+        this.checkFullFilledRow(this.rowField.children[gameData.currentRow - 1] as HTMLElement);
         document.body.style.cursor = '';
         element.style.cursor = '';
         element.style.transform = '';
@@ -425,7 +427,7 @@ class GameView extends View {
             this.buttonField.disableButton(this.buttonField.checkButton.getElement());
             return;
         }
-        if (this.sourceSentence === this.currentAnswerSentence) {
+        if (gameData.correctSentence === gameData.currentAnswerSentence) {
             this.buttonField.showButton(this.buttonField.continueButton.getElement());
             this.buttonField.hideButton(this.buttonField.checkButton.getElement());
             this.buttonField.hideButton(this.buttonField.autoCompleteButton.getElement());
@@ -441,7 +443,7 @@ class GameView extends View {
 
     private updateAnswerSentence(row: HTMLElement): void {
         const arrayFromRow = Array.from(row.children).map((item) => item.textContent);
-        this.currentAnswerSentence = arrayFromRow.join(' ');
+        gameData.currentAnswerSentence = arrayFromRow.join(' ');
     }
 
     private enableTranslateHint = (btn: HTMLButtonElement) => {
@@ -561,13 +563,39 @@ class GameView extends View {
         }
     }
 
+    private onChangeLevel(event: Event): void {
+        const value = (event.target as HTMLSelectElement).value;
+        gameData.level = Number(value) - 1;
+        gameData.round = 0;
+        gameData.currentRow = 1;
+        gameData.currentPuctire = '';
+        gameData.currentAnswerSentence = '';
+        gameData.correctSentence = '';
+        this.collection = getJson(`./data/wordCollectionLevel${gameData.level + 1}.json`);
+        this.gameField.removeEventListener('pointerup', this.onClickCard!);
+        this.updateRowField();
+        this.configureGame();
+    }
+
+    private onChangeRound(event: Event): void {
+        const value = (event.target as HTMLSelectElement).value;
+        gameData.round = Number(value);
+        gameData.currentRow = 1;
+        gameData.currentPuctire = '';
+        gameData.currentAnswerSentence = '';
+        gameData.correctSentence = '';
+        this.gameField.removeEventListener('pointerup', this.onClickCard!);
+        this.updateRowField();
+        this.configureGame();
+    }
+
     configureView(): void {
         this.configureGame();
         this.updateRowField();
         this.addHintEvents();
         this.setUserSettings();
         this.gameField.append(this.rowField, this.sourceBlock, this.buttonField.getViewHtml());
-        this.getViewHtml().append(this.hints.getViewHtml(), this.gameField);
+        this.getViewHtml().append(this.selectionField.getViewHtml(), this.hints.getViewHtml(), this.gameField);
     }
 }
 
