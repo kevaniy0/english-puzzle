@@ -196,6 +196,10 @@ class GameView extends View {
                 calculateBlockWidth(this.rowField, arrayWords);
                 // this.resizeBackground();
             });
+            if (this.buttonField.continueButton.getElement().style.display !== 'none') {
+                this.buttonField.hideButton(this.buttonField.continueButton.getElement());
+                this.buttonField.showButton(this.buttonField.checkButton.getElement());
+            }
             this.buttonField.disableButton(this.buttonField.checkButton.getElement());
             this.buttonField.showButton(this.buttonField.autoCompleteButton.getElement());
         });
@@ -219,7 +223,6 @@ class GameView extends View {
     }
 
     private createCallbackCard(event: PointerEvent) {
-        console.log('da');
         const target = event.target! as HTMLElement;
         if (!target.classList.contains('source-word')) return;
         if (this.wasDraggin(event.clientX, event.clientY)) return;
