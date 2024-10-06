@@ -436,6 +436,8 @@ class GameView extends View {
             this.buttonField.hideButton(this.buttonField.autoCompleteButton.getElement());
             this.showHintsAfterSuccess();
             this.showBackgroundOnCorrect();
+            this.onDragCardRemove();
+
             if (this.onClickCard && this.gameField) {
                 this.gameField.removeEventListener('pointerup', this.onClickCard);
             }
