@@ -13,6 +13,7 @@ import storage from '../../../services/storage-service';
 import { gameData } from '../../../services/game-data';
 import ButtonsField from './buttons-field/buttons-field';
 import SelectionField from './selection-field/selection-field';
+import { checkAnswer } from '../../../utils/helpers/checkAnswer';
 
 class GameView extends View {
     router: Router;
@@ -236,7 +237,9 @@ class GameView extends View {
     }
 
     private onClickCheck(): void {
-        if (gameData.correctSentence !== gameData.currentAnswerSentence) {
+        const currentRow = Array.from(this.rowField.children)[gameData.currentRow - 1] as HTMLElement;
+        const arrayFromRow = Array.from(currentRow.children) as HTMLElement[];
+        if (!checkAnswer(arrayFromRow)) {
             this.paintCheckBlocks(gameData.correctSentence, gameData.currentAnswerSentence, this.timer);
         }
     }
@@ -287,15 +290,13 @@ class GameView extends View {
 
     private paintCheckBlocks(correctSentence: string, currentSentence: string, timer: GAME.Timer): void {
         const currentBlocks = Array.from(this.rowField.children[gameData.currentRow - 1].children) as HTMLElement[];
-        const correctWords = correctSentence.split(' ');
-        const currentWords = currentSentence.split(' ');
         if (timer.removeClasses) {
             clearTimeout(timer.removeClasses);
             currentBlocks.forEach((item) => item.classList.remove('paint-wrong', 'paint-true'));
         }
-        for (let i = 0; i < correctWords.length; i += 1) {
+        for (let i = 0; i < currentBlocks.length; i += 1) {
             currentBlocks[i].classList.remove('paint-wrong', 'paint-true');
-            if (correctWords[i] === currentWords[i]) {
+            if (currentBlocks[i].id === `w${i}`) {
                 currentBlocks[i].classList.add('paint-true');
             } else {
                 currentBlocks[i].classList.add('paint-wrong');
@@ -424,13 +425,15 @@ class GameView extends View {
     }
 
     private checkFullFilledRow(answerRow: HTMLElement): void {
-        const arrayFromRow = Array.from(answerRow.children);
+        const arrayFromRow = Array.from(answerRow.children) as HTMLElement[];
         const result = arrayFromRow.every((item) => !item.classList.contains('clear-card'));
         if (!result) {
             this.buttonField.disableButton(this.buttonField.checkButton.getElement());
             return;
         }
-        if (gameData.correctSentence === gameData.currentAnswerSentence) {
+
+        // if (gameData.correctSentence === gameData.currentAnswerSentence) {
+        if (checkAnswer(arrayFromRow)) {
             this.buttonField.showButton(this.buttonField.continueButton.getElement());
             this.buttonField.hideButton(this.buttonField.checkButton.getElement());
             this.buttonField.hideButton(this.buttonField.autoCompleteButton.getElement());
