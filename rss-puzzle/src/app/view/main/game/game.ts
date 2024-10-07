@@ -10,7 +10,7 @@ import swapElements from '../../../utils/helpers/swapElements';
 import eventEmitter from '../../../utils/eventEmitter/eventEmitter';
 import Hints from './hints/hints';
 import storage from '../../../services/storage-service';
-import { gameData } from '../../../services/game-data';
+import { completedRound, gameData } from '../../../services/game-data';
 import ButtonsField from './buttons-field/buttons-field';
 import SelectionField from './selection-field/selection-field';
 import { checkAnswer } from '../../../utils/helpers/checkAnswer';
@@ -252,6 +252,7 @@ class GameView extends View {
 
         gameData.currentRow += 1;
         if (gameData.currentRow === 11) {
+            this.saveCompletedRound();
             gameData.round += 1;
             gameData.currentRow = 1;
             this.updateRowField();
@@ -597,6 +598,10 @@ class GameView extends View {
         this.gameField.removeEventListener('pointerup', this.onClickCard!);
         this.updateRowField();
         this.configureGame();
+    }
+
+    public saveCompletedRound(): void {
+        completedRound[`level ${gameData.level + 1}` as keyof typeof completedRound].push(gameData.round + 1);
     }
 
     configureView(): void {

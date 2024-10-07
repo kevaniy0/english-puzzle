@@ -10,7 +10,7 @@ import {
     wrapperLevel,
     wrapperRound,
 } from './selection-field-data';
-import { gameData } from '../../../../services/game-data';
+import { completedRound, gameData } from '../../../../services/game-data';
 
 type Callback = (event: Event) => void;
 
@@ -64,8 +64,15 @@ class SelectionField extends View {
                 textContent: String(i + 1),
             });
             select?.append(option.getElement());
+            if (
+                completedRound[`level ${gameData.level + 1}` as keyof typeof completedRound].find(
+                    (item) => item === i + 1
+                )
+            ) {
+                option.getElement().style.backgroundColor = 'green';
+            }
         }
-        select.value = String(gameData.round) === '0' ? '1' : String(gameData.round);
+        select.value = String(gameData.round) === '0' ? '1' : String(gameData.round + 1);
     }
 
     configureView(): void {

@@ -7,13 +7,13 @@ abstract class View {
         this.view = this.createView(params);
     }
 
-    private createView<T extends keyof HTMLElementTagNameMap>(params: ElementParams<T>) {
+    private createView<T extends keyof HTMLElementTagNameMap>(params: ElementParams<T>): ElementCreator<T> {
         return new ElementCreator(params);
     }
 
     abstract configureView(view?: View): void;
 
-    getViewHtml(): HTMLElement {
+    public getViewHtml(): HTMLElement {
         return this.view.getElement();
     }
 }
