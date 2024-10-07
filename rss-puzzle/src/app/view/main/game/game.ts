@@ -116,6 +116,8 @@ class GameView extends View {
     }
 
     private toggleBackground() {
+        const fild = Array.from(this.rowField.children[gameData.currentRow - 1].children) as HTMLElement[];
+        if (checkAnswer(fild)) return;
         const currentWords: HTMLElement[] = [];
         const sourceCards = Array.from(this.sourceBlock.children) as HTMLElement[];
         sourceCards.forEach((item) => {
@@ -123,7 +125,6 @@ class GameView extends View {
                 currentWords.push(item);
             }
         });
-        const fild = Array.from(this.rowField.children[gameData.currentRow - 1].children) as HTMLElement[];
         fild.forEach((item) => {
             if (item.classList.contains('source-word')) {
                 currentWords.push(item);
@@ -526,6 +527,7 @@ class GameView extends View {
             } else {
                 this.enableBackgroundHint(backgroundHint);
             }
+
             storage.updateStorage();
         });
     };
