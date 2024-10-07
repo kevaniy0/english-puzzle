@@ -27,6 +27,10 @@ class MainView extends View {
         }
 
         main.append(element);
+        main.classList.add('smooth-transition');
+        setTimeout(() => {
+            main.classList.remove('smooth-transition');
+        }, 501);
     }
 }
 
