@@ -1,3 +1,4 @@
+import storage from './services/storage-service';
 import Header from './view/header/header';
 import ElementCreator from './utils/elementCreator/elementCreator';
 import MainView from './view/main/main';
@@ -8,7 +9,6 @@ import View from './view/view';
 import LoginView from './view/main/login/login';
 import GreetingView from './view/main/greeting/greeting';
 import GameView from './view/main/game/game';
-import storage from './services/storage-service';
 
 class App {
     private container: ElementCreator<'div'>;

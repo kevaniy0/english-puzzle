@@ -1,3 +1,5 @@
+import { GameStatistic, statisticGame } from './game-data';
+console.log('storage');
 type User = {
     readonly firstName: string;
     readonly lastName: string;
@@ -13,6 +15,7 @@ type UserHints = {
 type UserData = {
     user: User;
     settings: UserHints;
+    statistic: GameStatistic;
 };
 
 const userDefaultSettings = {
@@ -34,10 +37,15 @@ class StorageService {
         const user = localStorage.getItem(this.USER_KEY);
         if (user) {
             this.USER_DATA = JSON.parse(user);
+            this.USER_DATA!.statistic.gameStats.currentRow = 1;
         }
     }
     public createUser(obj: User): void {
-        const user: UserData = { user: obj, settings: userDefaultSettings };
+        const user: UserData = {
+            user: obj,
+            settings: userDefaultSettings,
+            statistic: statisticGame,
+        };
         this.USER_DATA = user;
         const json = JSON.stringify(user);
         localStorage.setItem(`${this.USER_KEY}`, json);
@@ -61,4 +69,5 @@ class StorageService {
 }
 
 const storage = new StorageService();
+
 export default storage;

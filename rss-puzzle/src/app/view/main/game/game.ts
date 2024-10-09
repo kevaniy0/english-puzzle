@@ -10,7 +10,6 @@ import swapElements from '../../../utils/helpers/swapElements';
 import eventEmitter from '../../../utils/eventEmitter/eventEmitter';
 import Hints from './hints/hints';
 import storage from '../../../services/storage-service';
-import { completedRound, gameData } from '../../../services/game-data';
 import ButtonsField from './buttons-field/buttons-field';
 import SelectionField from './selection-field/selection-field';
 import { checkAnswer } from '../../../utils/helpers/checkAnswer';
@@ -41,7 +40,9 @@ class GameView extends View {
         this.gameField = this.createGameField();
         this.rowField = this.createRowsField();
         this.sourceBlock = this.createSourceBlock();
-        this.collection = getJson(`./data/wordCollectionLevel${gameData.level + 1}.json`);
+        this.collection = getJson(
+            `./data/wordCollectionLevel${storage.USER_DATA!.statistic.gameStats.onLoadLevel + 1}.json`
+        );
         this.hints = new Hints();
         this.buttonField = new ButtonsField(
             this.onClickCheck.bind(this),
@@ -102,11 +103,12 @@ class GameView extends View {
             blocks[i].style.backgroundSize = `${width}px ${height}px`;
             blocks[i].style.backgroundRepeat = 'no-repeat';
             blocks[i].style.setProperty('--after-backgroundSize', `${width}px ${height}px`);
-            blocks[i].style.backgroundPosition = `-${backgroundShift}px -${40 * (gameData.currentRow - 1)}px`;
+            blocks[i].style.backgroundPosition =
+                `-${backgroundShift}px -${40 * (storage.USER_DATA!.statistic.gameStats.currentRow - 1)}px`;
             backgroundShift += parseFloat(blocks[i].style.width);
 
             const afterBackgroundShiftX = backgroundShift - 2;
-            const afterBackgroundShiftY = 40 * (gameData.currentRow - 1) + 11.5;
+            const afterBackgroundShiftY = 40 * (storage.USER_DATA!.statistic.gameStats.currentRow - 1) + 11.5;
 
             blocks[i].style.setProperty(
                 '--after-backgroundPosition',
@@ -116,7 +118,9 @@ class GameView extends View {
     }
 
     private toggleBackground() {
-        const fild = Array.from(this.rowField.children[gameData.currentRow - 1].children) as HTMLElement[];
+        const fild = Array.from(
+            this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1].children
+        ) as HTMLElement[];
         if (checkAnswer(fild)) return;
         const currentWords: HTMLElement[] = [];
         const sourceCards = Array.from(this.sourceBlock.children) as HTMLElement[];
@@ -132,8 +136,11 @@ class GameView extends View {
         });
         currentWords.forEach((item) => {
             if (this.hints.backgroundHintIcon.getElement().classList.contains('background-hint-button--on')) {
-                item.style.backgroundImage = `url(${gameData.currentPuctire})`;
-                item.style.setProperty('--after-backgroundImage', `url(${gameData.currentPuctire})`);
+                item.style.backgroundImage = `url(${storage.USER_DATA!.statistic.gameStats.currentPuctire})`;
+                item.style.setProperty(
+                    '--after-backgroundImage',
+                    `url(${storage.USER_DATA!.statistic.gameStats.currentPuctire})`
+                );
             } else {
                 item.style.backgroundImage = 'none';
                 item.style.setProperty('--after-backgroundImage', 'none');
@@ -142,10 +149,15 @@ class GameView extends View {
     }
 
     private showBackgroundOnCorrect() {
-        const cards = Array.from(this.rowField.children[gameData.currentRow - 1].children) as HTMLElement[];
+        const cards = Array.from(
+            this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1].children
+        ) as HTMLElement[];
         cards.forEach((item) => {
-            item.style.backgroundImage = `url(${gameData.currentPuctire})`;
-            item.style.setProperty('--after-backgroundImage', `url(${gameData.currentPuctire})`);
+            item.style.backgroundImage = `url(${storage.USER_DATA!.statistic.gameStats.currentPuctire})`;
+            item.style.setProperty(
+                '--after-backgroundImage',
+                `url(${storage.USER_DATA!.statistic.gameStats.currentPuctire})`
+            );
         });
     }
 
@@ -162,7 +174,7 @@ class GameView extends View {
         const quantityClearBlocks = Array.from(this.sourceBlock.children).length;
         for (let i = 0; i < quantityClearBlocks; i += 1) {
             const clearCard = this.createCard({ tag: 'div', className: ['clear-card'] });
-            this.rowField.children[gameData.currentRow - 1].append(clearCard);
+            this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1].append(clearCard);
         }
     }
 
@@ -170,14 +182,24 @@ class GameView extends View {
         this.updateSourceBlock();
         this.collection.then((item) => {
             const wordsArray: string[] =
-                item.rounds[gameData.round].words[gameData.currentRow - 1].textExample.split(' ');
-            gameData.correctSentence = wordsArray.join(' ');
+                item.rounds[storage.USER_DATA!.statistic.gameStats.round].words[
+                    storage.USER_DATA!.statistic.gameStats.currentRow - 1
+                ].textExample.split(' ');
+            storage.USER_DATA!.statistic.gameStats.correctSentence = wordsArray.join(' ');
+            storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel = item.roundsCount;
+            this.selectionField.updateLevel(storage.USER_DATA!.statistic.gameStats.level + 1, item.roundsCount);
             this.selectionField.updateTotalRounds(item.roundsCount);
             this.hints.translationSentence.setTextContent(
-                item.rounds[gameData.round].words[gameData.currentRow - 1].textExampleTranslate
+                item.rounds[storage.USER_DATA!.statistic.gameStats.round].words[
+                    storage.USER_DATA!.statistic.gameStats.currentRow - 1
+                ].textExampleTranslate
             );
-            this.hints.audioFile = this.hints.getAudio(item, gameData.round, gameData.currentRow);
-            gameData.currentPuctire = `${GAME.backgroundUrl}${item.rounds[gameData.round].levelData.imageSrc}`;
+            this.hints.audioFile = this.hints.getAudio(
+                item,
+                storage.USER_DATA!.statistic.gameStats.round,
+                storage.USER_DATA!.statistic.gameStats.currentRow
+            );
+            storage.USER_DATA!.statistic.gameStats.currentPuctire = `${GAME.backgroundUrl}${item.rounds[storage.USER_DATA!.statistic.gameStats.round].levelData.imageSrc}`;
             if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
                 this.hints.translationSentence.getElement().hidden = true;
             }
@@ -230,7 +252,9 @@ class GameView extends View {
         if (this.wasDraggin(event.clientX, event.clientY)) return;
 
         target.classList.remove('paint-wrong', 'paint-true', 'source-word--selected');
-        const currentRow = Array.from(this.rowField.children)[gameData.currentRow - 1] as HTMLElement;
+        const currentRow = Array.from(this.rowField.children)[
+            storage.USER_DATA!.statistic.gameStats.currentRow - 1
+        ] as HTMLElement;
         swapElements(target, currentRow, this.sourceBlock);
         this.updateAnswerSentence(currentRow);
         this.checkFullFilledRow(currentRow);
@@ -238,10 +262,16 @@ class GameView extends View {
     }
 
     private onClickCheck(): void {
-        const currentRow = Array.from(this.rowField.children)[gameData.currentRow - 1] as HTMLElement;
+        const currentRow = Array.from(this.rowField.children)[
+            storage.USER_DATA!.statistic.gameStats.currentRow - 1
+        ] as HTMLElement;
         const arrayFromRow = Array.from(currentRow.children) as HTMLElement[];
         if (!checkAnswer(arrayFromRow)) {
-            this.paintCheckBlocks(gameData.correctSentence, gameData.currentAnswerSentence, this.timer);
+            this.paintCheckBlocks(
+                storage.USER_DATA!.statistic.gameStats.correctSentence,
+                storage.USER_DATA!.statistic.gameStats.currentAnswerSentence,
+                this.timer
+            );
         }
     }
 
@@ -250,27 +280,26 @@ class GameView extends View {
         this.buttonField.hideButton(this.buttonField.continueButton.getElement());
         this.buttonField.showButton(this.buttonField.checkButton.getElement());
 
-        gameData.currentRow += 1;
-        if (gameData.currentRow === 11) {
-            this.saveCompletedRound();
-            gameData.round += 1;
-            gameData.currentRow = 1;
-            this.updateRowField();
-            // this.onChangeRound();
-        }
-
-        if (this.gameField) this.configureGame();
+        // gameData.currentRow += 1;
+        // if (gameData.currentRow === 11) {
+        //     this.saveCompletedRound();
+        //     gameData.round += 1;
+        //     gameData.currentRow = 1;
+        //     this.updateRowField();
+        // }
+        this.changeRoundAndLevel();
+        // if (this.gameField) this.configureGame();
     }
 
     private onClickAutoComplete() {
         const wordsFromSource = Array.from(this.sourceBlock.children).filter((item) =>
             item.classList.contains('source-word')
         );
-        const wordsFromAnswerRow = Array.from(this.rowField.children[gameData.currentRow - 1].children).filter((item) =>
-            item.classList.contains('source-word')
-        );
+        const wordsFromAnswerRow = Array.from(
+            this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1].children
+        ).filter((item) => item.classList.contains('source-word'));
         const neededBlock = [...wordsFromSource, ...wordsFromAnswerRow];
-        const row = this.rowField.children[gameData.currentRow - 1] as HTMLElement;
+        const row = this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1] as HTMLElement;
         while (row.firstElementChild) {
             row.firstElementChild.remove();
         }
@@ -291,7 +320,9 @@ class GameView extends View {
     }
 
     private paintCheckBlocks(correctSentence: string, currentSentence: string, timer: GAME.Timer): void {
-        const currentBlocks = Array.from(this.rowField.children[gameData.currentRow - 1].children) as HTMLElement[];
+        const currentBlocks = Array.from(
+            this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1].children
+        ) as HTMLElement[];
         if (timer.removeClasses) {
             clearTimeout(timer.removeClasses);
             currentBlocks.forEach((item) => item.classList.remove('paint-wrong', 'paint-true'));
@@ -311,7 +342,7 @@ class GameView extends View {
 
     private onDragCard(): void {
         const zoneSource = this.sourceBlock as HTMLElement;
-        const zoneAnswer = this.rowField.children[gameData.currentRow - 1] as HTMLElement;
+        const zoneAnswer = this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1] as HTMLElement;
 
         zoneSource.addEventListener('pointerdown', this.onPointerDown);
         zoneSource.addEventListener('pointerup', this.onPointerUp);
@@ -322,7 +353,7 @@ class GameView extends View {
 
     private onDragCardRemove() {
         const zoneSource = this.sourceBlock as HTMLElement;
-        const zoneAnswer = this.rowField.children[gameData.currentRow - 1] as HTMLElement;
+        const zoneAnswer = this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1] as HTMLElement;
 
         zoneSource.removeEventListener('pointerdown', this.onPointerDown);
         zoneSource.removeEventListener('pointerup', this.onPointerUp);
@@ -373,26 +404,38 @@ class GameView extends View {
             // *** Если взяли элемент из source block
 
             if (
-                hovered.classList.contains(`row-${gameData.currentRow}`) ||
+                hovered.classList.contains(`row-${storage.USER_DATA!.statistic.gameStats.currentRow}`) ||
                 (hovered.classList.contains(`clear-card`) &&
-                    hoveredParent?.classList.contains(`row-${gameData.currentRow}`))
+                    hoveredParent?.classList.contains(`row-${storage.USER_DATA!.statistic.gameStats.currentRow}`))
             ) {
                 // * Если навелись на область строки с ответом или пустую ячейку (вставляем вначало)
-                swapElements(element, this.rowField.children[gameData.currentRow - 1] as HTMLElement, this.sourceBlock);
+                swapElements(
+                    element,
+                    this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1] as HTMLElement,
+                    this.sourceBlock
+                );
             } else if (
                 hovered.classList.contains(`source-word`) &&
-                hoveredParent?.classList.contains(`row-${gameData.currentRow}`)
+                hoveredParent?.classList.contains(`row-${storage.USER_DATA!.statistic.gameStats.currentRow}`)
             ) {
                 // * Если навели на вставленную карточку в строке с ответами (вставляем перед наведенным элементом)
-                swapElements(element, this.rowField.children[gameData.currentRow - 1] as HTMLElement, this.sourceBlock);
-                (this.rowField.children[gameData.currentRow - 1] as HTMLElement).insertBefore(element, hovered);
+                swapElements(
+                    element,
+                    this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1] as HTMLElement,
+                    this.sourceBlock
+                );
+                (
+                    this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1] as HTMLElement
+                ).insertBefore(element, hovered);
             }
-        } else if (element.parentElement?.classList.contains(`row-${gameData.currentRow}`)) {
+        } else if (
+            element.parentElement?.classList.contains(`row-${storage.USER_DATA!.statistic.gameStats.currentRow}`)
+        ) {
             // *** Если взяли элемент из answer row
 
             if (
                 hovered.classList.contains('source-word') &&
-                hoveredParent?.classList.contains(`row-${gameData.currentRow}`)
+                hoveredParent?.classList.contains(`row-${storage.USER_DATA!.statistic.gameStats.currentRow}`)
             ) {
                 // * Если меняем элементы в строке ответов
                 const tempNode = document.createElement('div');
@@ -401,12 +444,20 @@ class GameView extends View {
                 elementParent?.replaceChild(hovered, tempNode);
             } else if (hoveredParent?.classList.contains('game-field__source-words')) {
                 // * Если из строки ответов тянем в строку слов
-                swapElements(element, this.rowField.children[gameData.currentRow - 1] as HTMLElement, this.sourceBlock);
+                swapElements(
+                    element,
+                    this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1] as HTMLElement,
+                    this.sourceBlock
+                );
             }
         }
 
-        this.updateAnswerSentence(this.rowField.children[gameData.currentRow - 1] as HTMLElement);
-        this.checkFullFilledRow(this.rowField.children[gameData.currentRow - 1] as HTMLElement);
+        this.updateAnswerSentence(
+            this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1] as HTMLElement
+        );
+        this.checkFullFilledRow(
+            this.rowField.children[storage.USER_DATA!.statistic.gameStats.currentRow - 1] as HTMLElement
+        );
         document.body.style.cursor = '';
         element.style.cursor = '';
         element.style.transform = '';
@@ -453,7 +504,7 @@ class GameView extends View {
 
     private updateAnswerSentence(row: HTMLElement): void {
         const arrayFromRow = Array.from(row.children).map((item) => item.textContent);
-        gameData.currentAnswerSentence = arrayFromRow.join(' ');
+        storage.USER_DATA!.statistic.gameStats.currentAnswerSentence = arrayFromRow.join(' ');
     }
 
     private enableTranslateHint = (btn: HTMLButtonElement) => {
@@ -576,13 +627,13 @@ class GameView extends View {
 
     private onChangeLevel(event: Event): void {
         const value = (event.target as HTMLSelectElement).value;
-        gameData.level = Number(value) - 1;
-        gameData.round = 0;
-        gameData.currentRow = 1;
-        gameData.currentPuctire = '';
-        gameData.currentAnswerSentence = '';
-        gameData.correctSentence = '';
-        this.collection = getJson(`./data/wordCollectionLevel${gameData.level + 1}.json`);
+        storage.USER_DATA!.statistic.gameStats.level = Number(value) - 1;
+        storage.USER_DATA!.statistic.gameStats.round = 0;
+        storage.USER_DATA!.statistic.gameStats.currentRow = 1;
+        storage.USER_DATA!.statistic.gameStats.currentPuctire = '';
+        storage.USER_DATA!.statistic.gameStats.currentAnswerSentence = '';
+        storage.USER_DATA!.statistic.gameStats.correctSentence = '';
+        this.collection = getJson(`./data/wordCollectionLevel${storage.USER_DATA!.statistic.gameStats.level + 1}.json`);
         this.gameField.removeEventListener('pointerup', this.onClickCard!);
         this.updateRowField();
         this.configureGame();
@@ -590,18 +641,72 @@ class GameView extends View {
 
     private onChangeRound(event: Event): void {
         const value = (event.target as HTMLSelectElement).value;
-        gameData.round = Number(value);
-        gameData.currentRow = 1;
-        gameData.currentPuctire = '';
-        gameData.currentAnswerSentence = '';
-        gameData.correctSentence = '';
+        storage.USER_DATA!.statistic.gameStats.round = Number(value) - 1;
+        storage.USER_DATA!.statistic.gameStats.currentRow = 1;
+        storage.USER_DATA!.statistic.gameStats.currentPuctire = '';
+        storage.USER_DATA!.statistic.gameStats.currentAnswerSentence = '';
+        storage.USER_DATA!.statistic.gameStats.correctSentence = '';
         this.gameField.removeEventListener('pointerup', this.onClickCard!);
         this.updateRowField();
         this.configureGame();
     }
 
+    private changeRoundAndLevel() {
+        storage.USER_DATA!.statistic.gameStats.currentRow += 1;
+        if (storage.USER_DATA!.statistic.gameStats.currentRow === 11) {
+            this.saveCompletedRound();
+            storage.USER_DATA!.statistic.gameStats.round += 1;
+            storage.USER_DATA!.statistic.gameStats.currentRow = 1;
+            this.updateRowField();
+
+            if (
+                storage.USER_DATA!.statistic.gameStats.level === 5 &&
+                storage.USER_DATA!.statistic.gameStats.round === storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel
+            ) {
+                storage.USER_DATA!.statistic.gameStats.level = 0;
+                storage.USER_DATA!.statistic.gameStats.round = 0;
+                this.updateRowField();
+            } else if (
+                storage.USER_DATA!.statistic.gameStats.round === storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel
+            ) {
+                storage.USER_DATA!.statistic.gameStats.level += 1;
+                storage.USER_DATA!.statistic.gameStats.round = 0;
+                this.collection = getJson(
+                    `./data/wordCollectionLevel${storage.USER_DATA!.statistic.gameStats.level + 1}.json`
+                );
+                this.updateRowField();
+            }
+        }
+        storage.updateStorage();
+
+        this.gameField.removeEventListener('pointerup', this.onClickCard!);
+        if (this.gameField) this.configureGame();
+    }
+
     public saveCompletedRound(): void {
-        completedRound[`level ${gameData.level + 1}` as keyof typeof completedRound].push(gameData.round + 1);
+        if (
+            !storage.USER_DATA?.statistic.roundsCompleted[
+                `level ${storage.USER_DATA!.statistic.gameStats.level + 1}` as keyof typeof storage.USER_DATA.statistic.roundsCompleted
+            ].includes(storage.USER_DATA!.statistic.gameStats.round + 1)
+        ) {
+            storage.USER_DATA?.statistic.roundsCompleted[
+                `level ${storage.USER_DATA!.statistic.gameStats.level + 1}` as keyof typeof storage.USER_DATA.statistic.roundsCompleted
+            ].push(storage.USER_DATA!.statistic.gameStats.round + 1);
+            if (
+                storage.USER_DATA!.statistic.gameStats.round === 5 &&
+                storage.USER_DATA!.statistic.gameStats.round === storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel
+            ) {
+                storage.USER_DATA!.statistic.gameStats.onLoadLevel = 0;
+                storage.USER_DATA!.statistic.gameStats.onLoadRound = 0;
+            } else if (
+                storage.USER_DATA!.statistic.gameStats.round === storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel
+            ) {
+                storage.USER_DATA!.statistic.gameStats.onLoadLevel += 1;
+                storage.USER_DATA!.statistic.gameStats.onLoadRound = 0;
+            } else {
+                storage.USER_DATA!.statistic.gameStats.onLoadRound += 1;
+            }
+        }
     }
 
     configureView(): void {

@@ -10,7 +10,7 @@ import {
     wrapperLevel,
     wrapperRound,
 } from './selection-field-data';
-import { completedRound, gameData } from '../../../../services/game-data';
+import storage from '../../../../services/storage-service';
 
 type Callback = (event: Event) => void;
 
@@ -18,7 +18,6 @@ class SelectionField extends View {
     levelSelection: ElementCreator<'div'>;
     roundSelection: ElementCreator<'div'>;
 
-    // collection
     constructor(onChangeLevel: Callback, onChangeRound: Callback) {
         super(field);
         this.levelSelection = this.createLevelSelection(onChangeLevel);
@@ -65,14 +64,32 @@ class SelectionField extends View {
             });
             select?.append(option.getElement());
             if (
-                completedRound[`level ${gameData.level + 1}` as keyof typeof completedRound].find(
-                    (item) => item === i + 1
-                )
+                storage.USER_DATA?.statistic.roundsCompleted[
+                    `level ${storage.USER_DATA?.statistic.gameStats.level + 1}` as keyof typeof storage.USER_DATA.statistic.roundsCompleted
+                ].find((item) => item === i + 1)
             ) {
                 option.getElement().style.backgroundColor = 'green';
             }
         }
-        select.value = String(gameData.round) === '0' ? '1' : String(gameData.round + 1);
+        select.value =
+            String(storage.USER_DATA?.statistic.gameStats.round) === '0'
+                ? '1'
+                : String(storage.USER_DATA!.statistic.gameStats.round + 1);
+    }
+
+    public updateLevel(value: number, totalRounds: number) {
+        const select = this.levelSelection.getElement().lastElementChild as HTMLSelectElement;
+        const options = Array.from(select.children) as HTMLElement[];
+        for (let i = 0; i < options.length; i += 1) {
+            if (
+                storage.USER_DATA?.statistic.roundsCompleted[
+                    `level ${i + 1}` as keyof typeof storage.USER_DATA.statistic.roundsCompleted
+                ].length === totalRounds
+            ) {
+                options[i].style.backgroundColor = 'green';
+            }
+        }
+        select.value = String(value);
     }
 
     configureView(): void {
