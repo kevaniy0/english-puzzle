@@ -3,6 +3,9 @@ import { ElementParams } from '../../utils/elementCreator/elementCreator';
 import View from '../view';
 import LoginView from './login/login';
 import eventEmitter from '../../utils/eventEmitter/eventEmitter';
+import AutoResumeGame from './game/resume/resume';
+import GameView from './game/game';
+import storage from '../../services/storage-service';
 
 class MainView extends View {
     constructor(view: View) {
@@ -30,6 +33,18 @@ class MainView extends View {
         main.classList.add('smooth-transition');
         setTimeout(() => {
             main.classList.remove('smooth-transition');
+            if (view instanceof GameView) {
+                const data = storage.USER_DATA?.statistic.roundsCompleted;
+                if (data) {
+                    for (let i = 0; i < 6; i += 1) {
+                        if (data[`level ${i + 1}` as keyof typeof data][0].length > 0) {
+                            const resumeGame = new AutoResumeGame();
+                            this.view.getElement().append(resumeGame.getViewHtml());
+                            break;
+                        }
+                    }
+                }
+            }
         }, 501);
     }
 }

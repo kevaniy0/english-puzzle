@@ -5,6 +5,7 @@ import View from '../../view';
 import * as LOGIN from './data';
 import Router from '../../../router/router';
 import storage from '../../../services/storage-service';
+import eventEmitter from '../../../utils/eventEmitter/eventEmitter';
 
 class LoginView extends View {
     router: Router;
@@ -36,6 +37,7 @@ class LoginView extends View {
             const name = inputName.getElement().value;
             const lastName = inputLastName.getElement().value;
             storage.createUser({ firstName: name, lastName: lastName });
+            eventEmitter.emit('removeMarginForLoginPage');
             this.router.navigate('greeting');
         });
         form.checkButtonStatus(inputName.getElement(), inputLastName.getElement(), loginBtn.getElement());
@@ -43,10 +45,9 @@ class LoginView extends View {
     }
     configureView(): void {
         const title = this.createTitle(LOGIN.TITLE);
-
         this.view.getElement().append(title.getElement());
-
         this.createLoginForm();
+        eventEmitter.emit('addMarginForLoginPage');
     }
 }
 

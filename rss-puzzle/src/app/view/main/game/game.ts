@@ -13,7 +13,6 @@ import storage from '../../../services/storage-service';
 import ButtonsField from './buttons-field/buttons-field';
 import SelectionField from './selection-field/selection-field';
 import { checkAnswer } from '../../../utils/helpers/checkAnswer';
-
 class GameView extends View {
     router: Router;
     collection: Promise<GAME.Collection>;

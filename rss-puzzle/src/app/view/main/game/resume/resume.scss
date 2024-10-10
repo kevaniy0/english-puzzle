@@ -1,0 +1,49 @@
+.auto-resume-game{
+    position: fixed;
+    top: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    padding: 10px 50px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 5px rgba(21, 233, 10, 0.2);
+    font-family: 'Acme-Regular';
+    font-size: 20px;
+    animation: appearNotification 4s ease-in-out;
+    .resume-title {
+        font-family: inherit;
+        position: relative;
+        padding: 0;
+        margin: 0;
+        &::before{
+            position: absolute;
+            top: 50%;
+            left: -23px;
+            transform: translateY(-50%);
+            content: "";
+            background-image: url('../../../../../assets/img/resumeGame.png');
+            background-repeat: no-repeat;
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+
+
+@keyframes appearNotification {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -100px);
+    }
+
+    20%, 80% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    100%{
+        opacity: 0;
+        transform: translate(-50%, -100px);
+    }
+}
