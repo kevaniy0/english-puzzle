@@ -40,9 +40,7 @@ class GameView extends View {
         this.gameField = this.createGameField();
         this.rowField = this.createRowsField();
         this.sourceBlock = this.createSourceBlock();
-        this.collection = getJson(
-            `./data/wordCollectionLevel${storage.USER_DATA!.statistic.gameStats.onLoadLevel + 1}.json`
-        );
+        this.collection = getJson(`./data/wordCollectionLevel${storage.USER_DATA!.statistic.gameStats.level + 1}.json`);
         this.hints = new Hints();
         this.buttonField = new ButtonsField(
             this.onClickCheck.bind(this),
@@ -188,7 +186,7 @@ class GameView extends View {
             storage.USER_DATA!.statistic.gameStats.correctSentence = wordsArray.join(' ');
             storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel = item.roundsCount;
             this.selectionField.updateLevel(storage.USER_DATA!.statistic.gameStats.level + 1, item.roundsCount);
-            this.selectionField.updateTotalRounds(item.roundsCount);
+            this.selectionField.updateRoundOptions(item.roundsCount);
             this.hints.translationSentence.setTextContent(
                 item.rounds[storage.USER_DATA!.statistic.gameStats.round].words[
                     storage.USER_DATA!.statistic.gameStats.currentRow - 1
@@ -280,15 +278,7 @@ class GameView extends View {
         this.buttonField.hideButton(this.buttonField.continueButton.getElement());
         this.buttonField.showButton(this.buttonField.checkButton.getElement());
 
-        // gameData.currentRow += 1;
-        // if (gameData.currentRow === 11) {
-        //     this.saveCompletedRound();
-        //     gameData.round += 1;
-        //     gameData.currentRow = 1;
-        //     this.updateRowField();
-        // }
-        this.changeRoundAndLevel();
-        // if (this.gameField) this.configureGame();
+        this.completeRow();
     }
 
     private onClickAutoComplete() {
@@ -485,7 +475,6 @@ class GameView extends View {
             return;
         }
 
-        // if (gameData.correctSentence === gameData.currentAnswerSentence) {
         if (checkAnswer(arrayFromRow)) {
             this.buttonField.showButton(this.buttonField.continueButton.getElement());
             this.buttonField.hideButton(this.buttonField.checkButton.getElement());
@@ -627,12 +616,7 @@ class GameView extends View {
 
     private onChangeLevel(event: Event): void {
         const value = (event.target as HTMLSelectElement).value;
-        storage.USER_DATA!.statistic.gameStats.level = Number(value) - 1;
-        storage.USER_DATA!.statistic.gameStats.round = 0;
-        storage.USER_DATA!.statistic.gameStats.currentRow = 1;
-        storage.USER_DATA!.statistic.gameStats.currentPuctire = '';
-        storage.USER_DATA!.statistic.gameStats.currentAnswerSentence = '';
-        storage.USER_DATA!.statistic.gameStats.correctSentence = '';
+        storage.changeLevel(value);
         this.collection = getJson(`./data/wordCollectionLevel${storage.USER_DATA!.statistic.gameStats.level + 1}.json`);
         this.gameField.removeEventListener('pointerup', this.onClickCard!);
         this.updateRowField();
@@ -641,72 +625,42 @@ class GameView extends View {
 
     private onChangeRound(event: Event): void {
         const value = (event.target as HTMLSelectElement).value;
-        storage.USER_DATA!.statistic.gameStats.round = Number(value) - 1;
-        storage.USER_DATA!.statistic.gameStats.currentRow = 1;
-        storage.USER_DATA!.statistic.gameStats.currentPuctire = '';
-        storage.USER_DATA!.statistic.gameStats.currentAnswerSentence = '';
-        storage.USER_DATA!.statistic.gameStats.correctSentence = '';
+        storage.changeRound(value);
+        this.selectionField.roundSelect.getElement().value = value;
         this.gameField.removeEventListener('pointerup', this.onClickCard!);
         this.updateRowField();
         this.configureGame();
     }
 
-    private changeRoundAndLevel() {
-        storage.USER_DATA!.statistic.gameStats.currentRow += 1;
-        if (storage.USER_DATA!.statistic.gameStats.currentRow === 11) {
-            this.saveCompletedRound();
-            storage.USER_DATA!.statistic.gameStats.round += 1;
-            storage.USER_DATA!.statistic.gameStats.currentRow = 1;
+    private completeRow() {
+        const data = storage.USER_DATA?.statistic;
+        if (!data) return;
+        data.gameStats.currentRow += 1;
+        if (data.gameStats.currentRow === 11) {
+            storage.saveCompletedRound();
+            data.gameStats.currentRow = 1;
             this.updateRowField();
-
-            if (
-                storage.USER_DATA!.statistic.gameStats.level === 5 &&
-                storage.USER_DATA!.statistic.gameStats.round === storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel
-            ) {
-                storage.USER_DATA!.statistic.gameStats.level = 0;
-                storage.USER_DATA!.statistic.gameStats.round = 0;
+            const level = `level ${data.gameStats.level + 1}` as keyof typeof data.roundsCompleted;
+            if (data.roundsCompleted[level][1] === true) {
+                this.selectionField.levelSelect.getElement().options[data.gameStats.level].style.backgroundColor =
+                    'green';
+            }
+            if (data.gameStats.level === 5 && data.gameStats.round === data.gameStats.maxRoundOfLevel) {
+                data.gameStats.level = 0;
+                data.gameStats.round = 0;
+                this.collection = getJson(`./data/wordCollectionLevel${data.gameStats.level + 1}.json`);
                 this.updateRowField();
-            } else if (
-                storage.USER_DATA!.statistic.gameStats.round === storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel
-            ) {
-                storage.USER_DATA!.statistic.gameStats.level += 1;
-                storage.USER_DATA!.statistic.gameStats.round = 0;
-                this.collection = getJson(
-                    `./data/wordCollectionLevel${storage.USER_DATA!.statistic.gameStats.level + 1}.json`
-                );
+            } else if (data.gameStats.round === data.gameStats.maxRoundOfLevel) {
+                data.gameStats.level += 1;
+                data.gameStats.round = 0;
+                this.collection = getJson(`./data/wordCollectionLevel${data.gameStats.level + 1}.json`);
                 this.updateRowField();
             }
+            storage.updateStorage();
         }
-        storage.updateStorage();
 
         this.gameField.removeEventListener('pointerup', this.onClickCard!);
         if (this.gameField) this.configureGame();
-    }
-
-    public saveCompletedRound(): void {
-        if (
-            !storage.USER_DATA?.statistic.roundsCompleted[
-                `level ${storage.USER_DATA!.statistic.gameStats.level + 1}` as keyof typeof storage.USER_DATA.statistic.roundsCompleted
-            ].includes(storage.USER_DATA!.statistic.gameStats.round + 1)
-        ) {
-            storage.USER_DATA?.statistic.roundsCompleted[
-                `level ${storage.USER_DATA!.statistic.gameStats.level + 1}` as keyof typeof storage.USER_DATA.statistic.roundsCompleted
-            ].push(storage.USER_DATA!.statistic.gameStats.round + 1);
-            if (
-                storage.USER_DATA!.statistic.gameStats.round === 5 &&
-                storage.USER_DATA!.statistic.gameStats.round === storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel
-            ) {
-                storage.USER_DATA!.statistic.gameStats.onLoadLevel = 0;
-                storage.USER_DATA!.statistic.gameStats.onLoadRound = 0;
-            } else if (
-                storage.USER_DATA!.statistic.gameStats.round === storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel
-            ) {
-                storage.USER_DATA!.statistic.gameStats.onLoadLevel += 1;
-                storage.USER_DATA!.statistic.gameStats.onLoadRound = 0;
-            } else {
-                storage.USER_DATA!.statistic.gameStats.onLoadRound += 1;
-            }
-        }
     }
 
     configureView(): void {

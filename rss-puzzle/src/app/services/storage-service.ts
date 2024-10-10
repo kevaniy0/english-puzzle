@@ -66,6 +66,46 @@ class StorageService {
         localStorage.removeItem(this.USER_KEY);
         this.USER_DATA = null;
     }
+
+    public changeLevel(level: string): void {
+        this.USER_DATA!.statistic.gameStats.level = Number(level) - 1;
+        this.USER_DATA!.statistic.gameStats.round = 0;
+        this.clearStart();
+    }
+
+    public changeRound(round: string): void {
+        this.USER_DATA!.statistic.gameStats.round = Number(round) - 1;
+        this.clearStart();
+    }
+
+    public clearStart() {
+        this.USER_DATA!.statistic.gameStats.currentRow = 1;
+        this.USER_DATA!.statistic.gameStats.currentPuctire = '';
+        this.USER_DATA!.statistic.gameStats.currentAnswerSentence = '';
+        this.USER_DATA!.statistic.gameStats.correctSentence = '';
+    }
+
+    public saveCompletedRound() {
+        const data = this.USER_DATA?.statistic;
+        if (!data) return;
+        const level = `level ${data.gameStats.level + 1}` as keyof typeof data.roundsCompleted;
+        const round = data.gameStats.round + 1;
+        if (!data.roundsCompleted[level][0].includes(round)) {
+            data.roundsCompleted[level][0].push(round);
+            if (data.roundsCompleted[level][0].length === data.gameStats.maxRoundOfLevel) {
+                data.roundsCompleted[level][1] = true;
+            }
+            if (data.gameStats.round === 5 && data.gameStats.round === data.gameStats.maxRoundOfLevel) {
+                data.gameStats.level = 0;
+                data.gameStats.round = 0;
+            } else if (data.gameStats.round === data.gameStats.maxRoundOfLevel) {
+                data.gameStats.level += 1;
+                data.gameStats.round = 0;
+            } else {
+                data.gameStats.round += 1;
+            }
+        }
+    }
 }
 
 const storage = new StorageService();

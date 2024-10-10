@@ -1,8 +1,6 @@
 export type GameData = {
     level: number;
     round: number;
-    onLoadRound: number;
-    onLoadLevel: number;
     maxRoundOfLevel: number;
     currentRow: number;
     currentPuctire: string;
@@ -11,12 +9,12 @@ export type GameData = {
 };
 
 export type CompleteRounds = {
-    'level 1': number[];
-    'level 2': number[];
-    'level 3': number[];
-    'level 4': number[];
-    'level 5': number[];
-    'level 6': number[];
+    'level 1': [number[], boolean];
+    'level 2': [number[], boolean];
+    'level 3': [number[], boolean];
+    'level 4': [number[], boolean];
+    'level 5': [number[], boolean];
+    'level 6': [number[], boolean];
 };
 
 export type GameStatistic = {
@@ -27,8 +25,6 @@ export type GameStatistic = {
 export const gameData: GameData = {
     level: 0,
     round: 0,
-    onLoadRound: 0,
-    onLoadLevel: 0,
     currentRow: 1,
     maxRoundOfLevel: 0,
     currentPuctire: '',
@@ -37,12 +33,12 @@ export const gameData: GameData = {
 };
 
 export const completedRound: CompleteRounds = {
-    'level 1': [],
-    'level 2': [],
-    'level 3': [],
-    'level 4': [],
-    'level 5': [],
-    'level 6': [],
+    'level 1': [[], false],
+    'level 2': [[], false],
+    'level 3': [[], false],
+    'level 4': [[], false],
+    'level 5': [[], false],
+    'level 6': [[], false],
 };
 
 export const statisticGame: GameStatistic = {

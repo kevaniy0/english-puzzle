@@ -1,5 +1,5 @@
 import './selection-field.scss';
-import ElementCreator from '../../../../utils/elementCreator/elementCreator';
+import ElementCreator, { ElementParams } from '../../../../utils/elementCreator/elementCreator';
 import View from '../../../view';
 import {
     field,
@@ -15,46 +15,46 @@ import storage from '../../../../services/storage-service';
 type Callback = (event: Event) => void;
 
 class SelectionField extends View {
-    levelSelection: ElementCreator<'div'>;
-    roundSelection: ElementCreator<'div'>;
+    levelSelect: ElementCreator<'select'>;
+    roundSelect: ElementCreator<'select'>;
 
     constructor(onChangeLevel: Callback, onChangeRound: Callback) {
         super(field);
-        this.levelSelection = this.createLevelSelection(onChangeLevel);
-        this.roundSelection = this.createRoundSelection(onChangeRound);
+        this.levelSelect = this.createSelect(levelSelect, onChangeLevel);
+        this.roundSelect = this.createSelect(roundSelect, onChangeRound);
         this.configureView();
     }
 
-    private createLevelSelection(onChangeLevel: Callback): ElementCreator<'div'> {
-        const wrapper = new ElementCreator(wrapperLevel);
-        const title = new ElementCreator(levelTitle);
-        const select = new ElementCreator(levelSelect);
+    private createSelect(params: ElementParams<'select'>, callback: Callback): ElementCreator<'select'> {
+        const select = new ElementCreator(params);
+        if (select.getElement().classList.contains('level-select')) {
+            this.createLevelOptions(select.getElement());
+        }
+        select.getElement().addEventListener('change', callback);
+        return select;
+    }
+
+    private createLevelOptions(select: HTMLSelectElement): void {
         for (let i = 0; i < 6; i += 1) {
             const option = new ElementCreator({
                 tag: 'option',
                 className: ['option-level'],
                 textContent: String(i + 1),
             });
-            select.getElement().append(option.getElement());
+            if (
+                storage.USER_DATA?.statistic.roundsCompleted[
+                    `level ${i + 1}` as keyof typeof storage.USER_DATA.statistic.roundsCompleted
+                ][1]
+            ) {
+                option.getElement().style.backgroundColor = 'green';
+            }
+            select.append(option.getElement());
         }
-        select.getElement().addEventListener('change', onChangeLevel);
-        wrapper.getElement().append(title.getElement(), select.getElement());
-        return wrapper;
     }
 
-    private createRoundSelection(onChangeRound: Callback): ElementCreator<'div'> {
-        const wrapper = new ElementCreator(wrapperRound);
-        const title = new ElementCreator(roundTitle);
-        const select = new ElementCreator(roundSelect);
-        select.getElement().addEventListener('change', onChangeRound);
-        wrapper.getElement().append(title.getElement(), select.getElement());
-        return wrapper;
-    }
-
-    public updateTotalRounds(totalRounds: number): void {
-        const select = this.roundSelection.getElement().lastElementChild as HTMLSelectElement;
-        while (select?.firstElementChild) {
-            select.firstElementChild.remove();
+    public updateRoundOptions(totalRounds: number): void {
+        while (this.roundSelect.getElement().options.length > 0) {
+            this.roundSelect.getElement().remove(0);
         }
         for (let i = 0; i < totalRounds; i += 1) {
             const option = new ElementCreator({
@@ -62,24 +62,21 @@ class SelectionField extends View {
                 className: [`option-round-${i + 1}`],
                 textContent: String(i + 1),
             });
-            select?.append(option.getElement());
+            this.roundSelect.getElement().append(option.getElement());
             if (
                 storage.USER_DATA?.statistic.roundsCompleted[
                     `level ${storage.USER_DATA?.statistic.gameStats.level + 1}` as keyof typeof storage.USER_DATA.statistic.roundsCompleted
-                ].find((item) => item === i + 1)
+                ][0].find((item) => item === i + 1)
             ) {
                 option.getElement().style.backgroundColor = 'green';
             }
+            if (i === storage.USER_DATA?.statistic.gameStats.round) {
+                this.roundSelect.getElement().value = String(i + 1);
+            }
         }
-        select.value =
-            String(storage.USER_DATA?.statistic.gameStats.round) === '0'
-                ? '1'
-                : String(storage.USER_DATA!.statistic.gameStats.round + 1);
     }
-
-    public updateLevel(value: number, totalRounds: number) {
-        const select = this.levelSelection.getElement().lastElementChild as HTMLSelectElement;
-        const options = Array.from(select.children) as HTMLElement[];
+    public updateLevel(value: number, totalRounds: number): void {
+        const options = Array.from(this.levelSelect.getElement().options);
         for (let i = 0; i < options.length; i += 1) {
             if (
                 storage.USER_DATA?.statistic.roundsCompleted[
@@ -89,11 +86,19 @@ class SelectionField extends View {
                 options[i].style.backgroundColor = 'green';
             }
         }
-        select.value = String(value);
+        this.levelSelect.getElement().value = String(value);
     }
 
     configureView(): void {
-        this.view.getElement().append(this.levelSelection.getElement(), this.roundSelection.getElement());
+        const levelWrapper = new ElementCreator(wrapperLevel);
+        const titleLevel = new ElementCreator(levelTitle);
+        levelWrapper.getElement().append(titleLevel.getElement(), this.levelSelect.getElement());
+
+        const roundWrapper = new ElementCreator(wrapperRound);
+        const titleRound = new ElementCreator(roundTitle);
+        roundWrapper.getElement().append(titleRound.getElement(), this.roundSelect.getElement());
+
+        this.view.getElement().append(levelWrapper.getElement(), roundWrapper.getElement());
     }
 }
 
