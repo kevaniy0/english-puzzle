@@ -7,18 +7,39 @@
     gap: 15px;
     font-size: 20px;
     font-family: 'Acme-Regular';
+    text-align: left;
     .level-wrapper, .round-wrapper {
+        position: relative;
         select{
-            width: max-content;
-            text-align: center;
+            appearance: none;
+            width: 50px;
+            text-align: left;
             font-size: 18px;
             margin-left: 10px;
             padding: 2px 5px;
             border-radius: 5px;
             cursor: pointer;
-            option{
-                text-align: center;
-            }
         }
+        &::after{
+            content: "";
+            position: absolute;
+            pointer-events: none;
+            top: 50%;
+            left: 100%;
+            transform: translate(-100%, -50%) rotate(180deg);
+            width: 30px;
+            height: 30px;
+            background-image: url(../../../../../assets/img/arrow-drop.svg);
+            background-repeat: no-repeat;
+            background-size: 30px 30px;
+            background-position: 100% 50%;
+            transition: all 0.15s linear;
+        }
+        &.select-open::after{
+            transform: translate(-100%, -50%) rotate(0deg); 
+        }
+        
+        
     }
 }
+

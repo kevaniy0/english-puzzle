@@ -31,6 +31,16 @@ class SelectionField extends View {
             this.createLevelOptions(select.getElement());
         }
         select.getElement().addEventListener('change', callback);
+        select.getElement().addEventListener('click', () => {
+            if (!select.getElement().parentElement?.classList.contains('select-open')) {
+                select.getElement().parentElement?.classList.add('select-open');
+            } else {
+                select.getElement().parentElement?.classList.remove('select-open');
+            }
+        });
+        select.getElement().addEventListener('blur', () => {
+            select.getElement().parentElement?.classList.remove('select-open');
+        });
         return select;
     }
 
