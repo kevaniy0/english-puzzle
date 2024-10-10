@@ -92,18 +92,18 @@ class StorageService {
         const round = data.gameStats.round + 1;
         if (!data.roundsCompleted[level][0].includes(round)) {
             data.roundsCompleted[level][0].push(round);
-            if (data.roundsCompleted[level][0].length === data.gameStats.maxRoundOfLevel) {
-                data.roundsCompleted[level][1] = true;
-            }
-            if (data.gameStats.round === 5 && data.gameStats.round === data.gameStats.maxRoundOfLevel) {
-                data.gameStats.level = 0;
-                data.gameStats.round = 0;
-            } else if (data.gameStats.round === data.gameStats.maxRoundOfLevel) {
-                data.gameStats.level += 1;
-                data.gameStats.round = 0;
-            } else {
-                data.gameStats.round += 1;
-            }
+        }
+        if (data.roundsCompleted[level][0].length === data.gameStats.maxRoundOfLevel) {
+            data.roundsCompleted[level][1] = true;
+        }
+        if (data.gameStats.round === 5 && data.gameStats.round === data.gameStats.maxRoundOfLevel) {
+            data.gameStats.level = 0;
+            data.gameStats.round = 0;
+        } else if (data.gameStats.round === data.gameStats.maxRoundOfLevel) {
+            data.gameStats.level += 1;
+            data.gameStats.round = 0;
+        } else {
+            data.gameStats.round += 1;
         }
     }
 }
