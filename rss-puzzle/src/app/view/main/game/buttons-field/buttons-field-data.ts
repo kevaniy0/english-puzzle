@@ -7,6 +7,11 @@ export const continueButton: ElementParams<'button'> = {
     className: ['btn', 'btn-continue'],
     textContent: 'Continue',
 };
+export const resultsButton: ElementParams<'button'> = {
+    tag: 'button',
+    className: ['btn', 'btn-results'],
+    textContent: 'Results',
+};
 
 export const checkButton: ElementParams<'button'> = {
     tag: 'button',

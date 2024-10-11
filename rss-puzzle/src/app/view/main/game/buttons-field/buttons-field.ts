@@ -1,17 +1,24 @@
 import './buttons-field.scss';
 import ElementCreator, { ElementParams } from '../../../../utils/elementCreator/elementCreator';
 import View from '../../../view';
-import { autoComplete, buttonWrapper, checkButton, continueButton } from './buttons-field-data';
+import { autoComplete, buttonWrapper, checkButton, continueButton, resultsButton } from './buttons-field-data';
 
 type Callback = (event?: Event) => void;
 class ButtonsField extends View {
     checkButton: ElementCreator<'button'>;
     continueButton: ElementCreator<'button'>;
+    resultsButton: ElementCreator<'button'>;
     autoCompleteButton: ElementCreator<'button'>;
-    constructor(onClickCheck: Callback, onClickContinue: Callback, onClickAutoComplete: Callback) {
+    constructor(
+        onClickCheck: Callback,
+        onClickContinue: Callback,
+        onClickResults: Callback,
+        onClickAutoComplete: Callback
+    ) {
         super(buttonWrapper);
         this.checkButton = this.createButton(checkButton, onClickCheck);
         this.continueButton = this.createButton(continueButton, onClickContinue);
+        this.resultsButton = this.createButton(resultsButton, onClickResults);
         this.autoCompleteButton = this.createButton(autoComplete, onClickAutoComplete);
         this.configureView();
     }
@@ -25,7 +32,7 @@ class ButtonsField extends View {
     public showButton(btn: HTMLButtonElement): void {
         btn.style.display = 'block';
         btn.classList.add('btn--active');
-        if (btn.classList.contains('btn-continue')) {
+        if (btn.classList.contains('btn-continue') || btn.classList.contains('btn-results')) {
             btn.classList.add('btn-continue-animate');
         }
     }
@@ -33,7 +40,7 @@ class ButtonsField extends View {
     public hideButton(btn: HTMLButtonElement): void {
         btn.style.display = 'none';
         btn.classList.remove('btn--active');
-        if (btn.classList.contains('btn-continue')) {
+        if (btn.classList.contains('btn-continue') || btn.classList.contains('btn-results')) {
             btn.classList.remove('btn-continue-animate');
         }
     }
@@ -54,7 +61,8 @@ class ButtonsField extends View {
             .append(
                 this.checkButton.getElement(),
                 this.autoCompleteButton.getElement(),
-                this.continueButton.getElement()
+                this.continueButton.getElement(),
+                this.resultsButton.getElement()
             );
     }
 }

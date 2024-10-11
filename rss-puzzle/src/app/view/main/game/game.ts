@@ -44,6 +44,7 @@ class GameView extends View {
         this.buttonField = new ButtonsField(
             this.onClickCheck.bind(this),
             this.onClickContinue.bind(this),
+            this.onClickResults.bind(this),
             this.onClickAutoComplete.bind(this)
         );
         this.selectionField = new SelectionField(this.onChangeLevel.bind(this), this.onChangeRound.bind(this));
@@ -98,7 +99,7 @@ class GameView extends View {
 
         for (let i = 0; i < blocks.length; i += 1) {
             blocks[i].style.backgroundSize = `${width}px ${height}px`;
-            blocks[i].style.backgroundRepeat = 'no-repeat';
+            // blocks[i].style.backgroundRepeat = 'no-repeat';
             blocks[i].style.setProperty('--after-backgroundSize', `${width}px ${height}px`);
             blocks[i].style.backgroundPosition =
                 `-${backgroundShift}px -${40 * (storage.USER_DATA!.statistic.gameStats.currentRow - 1)}px`;
@@ -183,6 +184,8 @@ class GameView extends View {
                     storage.USER_DATA!.statistic.gameStats.currentRow - 1
                 ].textExample.split(' ');
             this.gameField.classList.remove('game-section-open-background');
+            this.buttonField.hideButton(this.buttonField.resultsButton.getElement());
+
             const data = storage.USER_DATA!.statistic.gameStats;
             data.correctSentence = wordsArray.join(' ');
             data.maxRoundOfLevel = item.roundsCount;
@@ -273,10 +276,15 @@ class GameView extends View {
 
     private onClickContinue(): void {
         if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
+        this.buttonField.hideButton(this.buttonField.resultsButton.getElement());
         this.buttonField.hideButton(this.buttonField.continueButton.getElement());
         this.buttonField.showButton(this.buttonField.checkButton.getElement());
 
         this.completeRow();
+    }
+
+    private onClickResults(): void {
+        // if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
     }
 
     private onClickAutoComplete() {
@@ -481,8 +489,11 @@ class GameView extends View {
             this.showBackgroundOnCorrect();
             this.onDragCardRemove();
             if (storage.USER_DATA?.statistic.gameStats.currentRow === 10) {
-                this.gameField.classList.add('game-section-open-background');
-                this.sourceBlock.append(this.showAutor().getElement());
+                setTimeout(() => {
+                    this.gameField.classList.add('game-section-open-background');
+                    this.sourceBlock.append(this.showAutor().getElement());
+                }, 100);
+                this.buttonField.showButton(this.buttonField.resultsButton.getElement());
             }
             if (this.onClickCard && this.gameField) {
                 this.gameField.removeEventListener('pointerup', this.onClickCard);

@@ -36,6 +36,21 @@
             animation: showContinue 0.3s linear 1;
         }
     }
+    .btn-results{
+        display: none;
+        background-color: #338309;
+        @media (hover: hover){
+            &:hover{
+                background-color: #63a83e;
+            }
+            &:active{
+                background-color: grey;
+            }
+        }
+        &-animate{
+            animation: showContinue 0.3s linear 1;
+        }
+    }
     
 }
 
