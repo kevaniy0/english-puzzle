@@ -1,5 +1,4 @@
 import { GameStatistic, statisticGame } from './game-data';
-console.log('storage');
 type User = {
     readonly firstName: string;
     readonly lastName: string;

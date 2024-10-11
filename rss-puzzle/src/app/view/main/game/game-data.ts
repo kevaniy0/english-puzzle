@@ -51,4 +51,4 @@ export const rowsFild: ElementParams<'div'> = { tag: 'div', className: ['game-fi
 export const row: ElementParams<'div'> = { tag: 'div', className: ['game-field__row'] };
 export const sourceWords: ElementParams<'div'> = { tag: 'div', className: ['game-field__source-words'] };
 
-export const settingsField: ElementParams<'div'> = { tag: 'div', className: ['settings-field'] };
+export const autorBlock: ElementParams<'div'> = { tag: 'div', className: ['autor-block', 'show-autor'] };

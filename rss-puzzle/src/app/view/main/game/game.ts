@@ -182,21 +182,20 @@ class GameView extends View {
                 item.rounds[storage.USER_DATA!.statistic.gameStats.round].words[
                     storage.USER_DATA!.statistic.gameStats.currentRow - 1
                 ].textExample.split(' ');
-            storage.USER_DATA!.statistic.gameStats.correctSentence = wordsArray.join(' ');
-            storage.USER_DATA!.statistic.gameStats.maxRoundOfLevel = item.roundsCount;
-            this.selectionField.updateLevel(storage.USER_DATA!.statistic.gameStats.level + 1, item.roundsCount);
+            this.gameField.classList.remove('game-section-open-background');
+            const data = storage.USER_DATA!.statistic.gameStats;
+            data.correctSentence = wordsArray.join(' ');
+            data.maxRoundOfLevel = item.roundsCount;
+            data.autor = item.rounds[data.round].levelData.author;
+            data.year = item.rounds[data.round].levelData.year;
+            data.pictureName = item.rounds[data.round].levelData.name;
+            this.selectionField.updateLevel(data.level + 1, item.roundsCount);
             this.selectionField.updateRoundOptions(item.roundsCount);
             this.hints.translationSentence.setTextContent(
-                item.rounds[storage.USER_DATA!.statistic.gameStats.round].words[
-                    storage.USER_DATA!.statistic.gameStats.currentRow - 1
-                ].textExampleTranslate
+                item.rounds[data.round].words[data.currentRow - 1].textExampleTranslate
             );
-            this.hints.audioFile = this.hints.getAudio(
-                item,
-                storage.USER_DATA!.statistic.gameStats.round,
-                storage.USER_DATA!.statistic.gameStats.currentRow
-            );
-            storage.USER_DATA!.statistic.gameStats.currentPuctire = `${GAME.backgroundUrl}${item.rounds[storage.USER_DATA!.statistic.gameStats.round].levelData.imageSrc}`;
+            this.hints.audioFile = this.hints.getAudio(item, data.round, data.currentRow);
+            data.currentPuctire = `${GAME.backgroundUrl}${item.rounds[data.round].levelData.imageSrc}`;
             if (this.hints.translationIcon.getElement().classList.contains('translate-button--off')) {
                 this.hints.translationSentence.getElement().hidden = true;
             }
@@ -481,7 +480,10 @@ class GameView extends View {
             this.showHintsAfterSuccess();
             this.showBackgroundOnCorrect();
             this.onDragCardRemove();
-
+            if (storage.USER_DATA?.statistic.gameStats.currentRow === 10) {
+                this.gameField.classList.add('game-section-open-background');
+                this.sourceBlock.append(this.showAutor().getElement());
+            }
             if (this.onClickCard && this.gameField) {
                 this.gameField.removeEventListener('pointerup', this.onClickCard);
             }
@@ -660,6 +662,17 @@ class GameView extends View {
 
         this.gameField.removeEventListener('pointerup', this.onClickCard!);
         if (this.gameField) this.configureGame();
+    }
+
+    private showAutor(): ElementCreator<'div'> {
+        const autor = storage.USER_DATA?.statistic.gameStats.autor;
+        const year = storage.USER_DATA?.statistic.gameStats.year;
+        const name = storage.USER_DATA?.statistic.gameStats.pictureName;
+
+        const autorBlock = new ElementCreator(GAME.autorBlock);
+        const text = `${autor}   -   "${name}",   ${year}`;
+        autorBlock.setTextContent(text);
+        return autorBlock;
     }
 
     configureView(): void {

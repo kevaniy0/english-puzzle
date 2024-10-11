@@ -6,6 +6,9 @@ export type GameData = {
     currentPuctire: string;
     currentAnswerSentence: string;
     correctSentence: string;
+    autor: string;
+    year: string;
+    pictureName: string;
 };
 
 export type CompleteRounds = {
@@ -30,6 +33,9 @@ export const gameData: GameData = {
     currentPuctire: '',
     currentAnswerSentence: '',
     correctSentence: '',
+    autor: '',
+    year: '',
+    pictureName: '',
 };
 
 export const completedRound: CompleteRounds = {
