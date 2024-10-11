@@ -137,8 +137,20 @@
     font-size: 20px;
     text-align: center;
     font-family: 'Acme-Regular';
-    white-space: pre;
+    white-space: pre-wrap;
     padding-top: 4px;
 }
 
-    
+   
+.animate-on-change{
+    animation: animateOnChange 0.5s ease-in-out;
+}
+
+@keyframes animateOnChange {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

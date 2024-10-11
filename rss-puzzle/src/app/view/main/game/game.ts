@@ -13,6 +13,7 @@ import storage from '../../../services/storage-service';
 import ButtonsField from './buttons-field/buttons-field';
 import SelectionField from './selection-field/selection-field';
 import { checkAnswer } from '../../../utils/helpers/checkAnswer';
+import StatisticView from './statistic/statistic';
 class GameView extends View {
     router: Router;
     collection: Promise<GAME.Collection>;
@@ -22,6 +23,7 @@ class GameView extends View {
     gameField: HTMLDivElement;
     rowField: HTMLDivElement;
     sourceBlock: HTMLDivElement;
+    statisticView: StatisticView;
     checkDrag: GAME.CheckDrag = {
         element: null,
         DRAX_PX: 10,
@@ -48,10 +50,10 @@ class GameView extends View {
             this.onClickAutoComplete.bind(this)
         );
         this.selectionField = new SelectionField(this.onChangeLevel.bind(this), this.onChangeRound.bind(this));
+        this.statisticView = new StatisticView(this.onClickContinue.bind(this));
         this.configureView();
     }
-
-    private createGameField() {
+    private createGameField(): HTMLDivElement {
         const gameField = new ElementCreator(GAME.field).getElement();
         return gameField;
     }
@@ -276,15 +278,23 @@ class GameView extends View {
 
     private onClickContinue(): void {
         if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
+        this.statisticView.getViewHtml().style.display = 'none';
         this.buttonField.hideButton(this.buttonField.resultsButton.getElement());
         this.buttonField.hideButton(this.buttonField.continueButton.getElement());
         this.buttonField.showButton(this.buttonField.checkButton.getElement());
+        if (storage.USER_DATA?.statistic.gameStats.currentRow === 10) {
+            this.gameField.classList.add('animate-on-change');
+            setTimeout(() => {
+                this.gameField.classList.remove('animate-on-change');
+            }, 500);
+        }
 
         this.completeRow();
     }
 
     private onClickResults(): void {
-        // if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
+        if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
+        this.statisticView.getViewHtml().style.display = 'block';
     }
 
     private onClickAutoComplete() {
@@ -692,7 +702,12 @@ class GameView extends View {
         this.addHintEvents();
         this.setUserSettings();
         this.gameField.append(this.rowField, this.sourceBlock, this.buttonField.getViewHtml());
-        this.getViewHtml().append(this.selectionField.getViewHtml(), this.hints.getViewHtml(), this.gameField);
+        this.getViewHtml().append(
+            this.selectionField.getViewHtml(),
+            this.hints.getViewHtml(),
+            this.gameField,
+            this.statisticView.getViewHtml()
+        );
     }
 }
 
