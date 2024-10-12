@@ -25,3 +25,6 @@ export const unknownTitle: ElementParams<'p'> = {
 export const sentencesWrapper: ElementParams<'div'> = { tag: 'div', className: ['sentences-wrapper'] };
 
 export const sentenceItem: ElementParams<'p'> = { tag: 'p', className: ['sentence-item'] };
+
+export const audioIcon: ElementParams<'span'> = { tag: 'span', className: ['audio-icon'] };
+export const audioLoader: ElementParams<'span'> = { tag: 'span', className: ['audio-loader'] };

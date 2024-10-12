@@ -108,12 +108,18 @@ class StorageService {
         }
     }
 
-    public addToKnown(): void {
-        this.USER_DATA?.statistic.gameStats.knownSentences.push(this.USER_DATA.statistic.gameStats.correctSentence);
+    public addToKnown(audio: HTMLAudioElement): void {
+        this.USER_DATA?.statistic.gameStats.knownSentences.push([
+            this.USER_DATA.statistic.gameStats.correctSentence,
+            audio,
+        ]);
         this.updateStorage();
     }
-    public addToUnknown(): void {
-        this.USER_DATA?.statistic.gameStats.unknownSentences.push(this.USER_DATA.statistic.gameStats.correctSentence);
+    public addToUnknown(audio: HTMLAudioElement): void {
+        this.USER_DATA?.statistic.gameStats.unknownSentences.push([
+            this.USER_DATA.statistic.gameStats.correctSentence,
+            audio,
+        ]);
         this.updateStorage();
     }
 

@@ -9,8 +9,8 @@ export type GameData = {
     autor: string;
     year: string;
     pictureName: string;
-    knownSentences: string[];
-    unknownSentences: string[];
+    knownSentences: [string, HTMLAudioElement][];
+    unknownSentences: [string, HTMLAudioElement][];
 };
 
 export type CompleteRounds = {

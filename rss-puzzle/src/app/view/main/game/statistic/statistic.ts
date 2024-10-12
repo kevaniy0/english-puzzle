@@ -2,6 +2,8 @@ import View from '../../../view';
 import './statistic.scss';
 // import storage from '../../../../services/storage-service';
 import {
+    audioIcon,
+    audioLoader,
     continueButton,
     knownField,
     knownTitle,
@@ -58,18 +60,39 @@ class StatisticView extends View {
         }
     }
 
+    private createAudioIcon(audio: HTMLAudioElement): ElementCreator<'span'> {
+        const span = new ElementCreator(audioIcon);
+        const loader = new ElementCreator(audioLoader);
+        span.getElement().append(loader.getElement());
+
+        span.getElement().addEventListener('click', () => {
+            audio.play();
+            loader.getElement().classList.add('audio-loader-on');
+            audio.addEventListener('ended', () => {
+                loader.getElement().classList.remove('audio-loader-on');
+            });
+        });
+        return span;
+    }
+
     public fillFields(): void {
         const data = storage.USER_DATA?.statistic.gameStats;
         if (!data) return;
         this.clearFields();
         data.knownSentences.forEach((item) => {
             const sentence = new ElementCreator(sentenceItem);
-            sentence.setTextContent(item);
+            sentence.setTextContent(item[0]);
+            const audioIcon = this.createAudioIcon(item[1]);
+            sentence.getElement().prepend(audioIcon.getElement());
+
             this.knownField.getElement().append(sentence.getElement());
         });
         data.unknownSentences.forEach((item) => {
             const sentence = new ElementCreator(sentenceItem);
-            sentence.setTextContent(item);
+            sentence.setTextContent(item[0]);
+            const audioIcon = this.createAudioIcon(item[1]);
+            sentence.getElement().prepend(audioIcon.getElement());
+
             this.unknownField.getElement().append(sentence.getElement());
         });
     }

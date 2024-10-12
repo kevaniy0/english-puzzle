@@ -501,11 +501,10 @@ class GameView extends View {
             this.buttonField.hideButton(this.buttonField.autoCompleteButton.getElement());
 
             if (this.autoCompleteFlag) {
-                storage.addToUnknown();
+                storage.addToUnknown(this.hints.audioFile!);
             } else {
-                storage.addToKnown();
+                storage.addToKnown(this.hints.audioFile!);
             }
-
             this.showHintsAfterSuccess();
             this.showBackgroundOnCorrect();
             this.onDragCardRemove();
