@@ -1,16 +1,31 @@
 import View from '../../../view';
 import './statistic.scss';
 // import storage from '../../../../services/storage-service';
-import { continueButton, statisticComponent, statisticWrapper } from './statistic-data';
-import ElementCreator from '../../../../utils/elementCreator/elementCreator';
+import {
+    continueButton,
+    knownField,
+    knownTitle,
+    sentenceItem,
+    sentencesWrapper,
+    statisticComponent,
+    statisticWrapper,
+    unknownField,
+    unknownTitle,
+} from './statistic-data';
+import ElementCreator, { ElementParams } from '../../../../utils/elementCreator/elementCreator';
+import storage from '../../../../services/storage-service';
 
 type Callback = (event: Event) => void;
 
 class StatisticView extends View {
+    knownField: ElementCreator<'div'>;
+    unknownField: ElementCreator<'div'>;
     continueButton: ElementCreator<'button'>;
     constructor(onClickContinue: Callback) {
         super(statisticComponent);
         this.continueButton = this.createContinueButton(onClickContinue);
+        this.knownField = this.createSentencesField(knownField);
+        this.unknownField = this.createSentencesField(unknownField);
         this.configureView();
     }
 
@@ -18,6 +33,11 @@ class StatisticView extends View {
         const button = new ElementCreator(continueButton);
         button.getElement().addEventListener('click', callback);
         return button;
+    }
+
+    private createSentencesField(params: ElementParams<'div'>) {
+        const field = new ElementCreator(params);
+        return field;
     }
 
     private onClickHideView(): void {
@@ -29,11 +49,49 @@ class StatisticView extends View {
         });
     }
 
+    public clearFields(): void {
+        while (this.knownField.getElement().firstElementChild) {
+            this.knownField.getElement().firstElementChild?.remove();
+        }
+        while (this.unknownField.getElement().firstElementChild) {
+            this.unknownField.getElement().firstElementChild?.remove();
+        }
+    }
+
+    public fillFields(): void {
+        const data = storage.USER_DATA?.statistic.gameStats;
+        if (!data) return;
+        this.clearFields();
+        data.knownSentences.forEach((item) => {
+            const sentence = new ElementCreator(sentenceItem);
+            sentence.setTextContent(item);
+            this.knownField.getElement().append(sentence.getElement());
+        });
+        data.unknownSentences.forEach((item) => {
+            const sentence = new ElementCreator(sentenceItem);
+            sentence.setTextContent(item);
+            this.unknownField.getElement().append(sentence.getElement());
+        });
+    }
+
     public configureView(): void {
         const wrapper = new ElementCreator(statisticWrapper);
-        wrapper.getElement().append(this.continueButton.getElement());
-        this.onClickHideView();
+
+        const statsWrapper = new ElementCreator(sentencesWrapper);
+        const titleKnown = new ElementCreator(knownTitle);
+        const titleUnknown = new ElementCreator(unknownTitle);
+        statsWrapper
+            .getElement()
+            .append(
+                titleKnown.getElement(),
+                this.knownField.getElement(),
+                titleUnknown.getElement(),
+                this.unknownField.getElement()
+            );
+
+        wrapper.getElement().append(statsWrapper.getElement(), this.continueButton.getElement());
         this.view.getElement().append(wrapper.getElement());
+        this.onClickHideView();
     }
 }
 

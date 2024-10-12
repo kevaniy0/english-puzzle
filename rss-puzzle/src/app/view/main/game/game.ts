@@ -34,6 +34,7 @@ class GameView extends View {
     };
     dragging: boolean = false;
     timer: GAME.Timer = { removeClasses: null };
+    autoCompleteFlag = false;
     onClickCard?: (event: PointerEvent) => void;
     constructor(router: Router) {
         super(GAME.page);
@@ -187,6 +188,7 @@ class GameView extends View {
                 ].textExample.split(' ');
             this.gameField.classList.remove('game-section-open-background');
             this.buttonField.hideButton(this.buttonField.resultsButton.getElement());
+            this.autoCompleteFlag = false;
 
             const data = storage.USER_DATA!.statistic.gameStats;
             data.correctSentence = wordsArray.join(' ');
@@ -295,9 +297,11 @@ class GameView extends View {
     private onClickResults(): void {
         if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
         this.statisticView.getViewHtml().style.display = 'block';
+        this.statisticView.fillFields();
     }
 
     private onClickAutoComplete() {
+        this.autoCompleteFlag = true;
         const wordsFromSource = Array.from(this.sourceBlock.children).filter((item) =>
             item.classList.contains('source-word')
         );
@@ -495,6 +499,13 @@ class GameView extends View {
             this.buttonField.showButton(this.buttonField.continueButton.getElement());
             this.buttonField.hideButton(this.buttonField.checkButton.getElement());
             this.buttonField.hideButton(this.buttonField.autoCompleteButton.getElement());
+
+            if (this.autoCompleteFlag) {
+                storage.addToUnknown();
+            } else {
+                storage.addToKnown();
+            }
+
             this.showHintsAfterSuccess();
             this.showBackgroundOnCorrect();
             this.onDragCardRemove();
@@ -518,21 +529,21 @@ class GameView extends View {
         storage.USER_DATA!.statistic.gameStats.currentAnswerSentence = arrayFromRow.join(' ');
     }
 
-    private enableTranslateHint = (btn: HTMLButtonElement) => {
+    private enableTranslateHint = (btn: HTMLButtonElement): void => {
         btn.classList.remove('translate-button--off');
         btn.classList.add('translate-button--on');
         this.hints.translationSentence.getElement().hidden = false;
         storage.USER_DATA!.settings.translateHint = true;
     };
 
-    private disableTranslateHint = (btn: HTMLButtonElement) => {
+    private disableTranslateHint = (btn: HTMLButtonElement): void => {
         btn.classList.remove('translate-button--on');
         btn.classList.add('translate-button--off');
         this.hints.translationSentence.getElement().hidden = true;
         storage.USER_DATA!.settings.translateHint = false;
     };
 
-    private onClickTranslationIcon() {
+    private onClickTranslationIcon(): void {
         const translateButton = this.hints.translationIcon.getElement();
         translateButton.addEventListener('click', () => {
             const translateSettings = storage.USER_DATA!.settings.translateHint;
@@ -660,6 +671,7 @@ class GameView extends View {
         data.gameStats.currentRow += 1;
         if (data.gameStats.currentRow === 11) {
             storage.saveCompletedRound();
+            storage.clearSentences();
             data.gameStats.currentRow = 1;
             this.updateRowField();
             const level = `level ${data.gameStats.level + 1}` as keyof typeof data.roundsCompleted;
@@ -697,6 +709,7 @@ class GameView extends View {
     }
 
     configureView(): void {
+        storage.clearSentences();
         this.configureGame();
         this.updateRowField();
         this.addHintEvents();

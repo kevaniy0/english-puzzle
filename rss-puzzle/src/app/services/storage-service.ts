@@ -70,11 +70,13 @@ class StorageService {
         this.USER_DATA!.statistic.gameStats.level = Number(level) - 1;
         this.USER_DATA!.statistic.gameStats.round = 0;
         this.clearStart();
+        this.clearSentences();
     }
 
     public changeRound(round: string): void {
         this.USER_DATA!.statistic.gameStats.round = Number(round) - 1;
         this.clearStart();
+        this.clearSentences();
     }
 
     public clearStart() {
@@ -104,6 +106,21 @@ class StorageService {
         } else {
             data.gameStats.round += 1;
         }
+    }
+
+    public addToKnown(): void {
+        this.USER_DATA?.statistic.gameStats.knownSentences.push(this.USER_DATA.statistic.gameStats.correctSentence);
+        this.updateStorage();
+    }
+    public addToUnknown(): void {
+        this.USER_DATA?.statistic.gameStats.unknownSentences.push(this.USER_DATA.statistic.gameStats.correctSentence);
+        this.updateStorage();
+    }
+
+    public clearSentences(): void {
+        this.USER_DATA!.statistic.gameStats.knownSentences.length = 0;
+        this.USER_DATA!.statistic.gameStats.unknownSentences.length = 0;
+        this.updateStorage();
     }
 }
 

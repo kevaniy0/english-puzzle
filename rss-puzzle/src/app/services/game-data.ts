@@ -9,6 +9,8 @@ export type GameData = {
     autor: string;
     year: string;
     pictureName: string;
+    knownSentences: string[];
+    unknownSentences: string[];
 };
 
 export type CompleteRounds = {
@@ -36,6 +38,8 @@ export const gameData: GameData = {
     autor: '',
     year: '',
     pictureName: '',
+    knownSentences: [],
+    unknownSentences: [],
 };
 
 export const completedRound: CompleteRounds = {
