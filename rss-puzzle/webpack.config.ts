@@ -23,6 +23,7 @@ export default (env: EnvVariables) => {
             port: env.port ?? 3000,
             hot: true,
             open: true,
+            historyApiFallback: true,
         },
         output: {
             path: path.resolve(__dirname, 'dist'),

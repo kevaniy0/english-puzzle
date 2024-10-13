@@ -61,12 +61,6 @@ class App {
                     this.setContentPages(new GameView(this.router));
                 },
             },
-            {
-                path: pages.ERROR,
-                callback: () => {
-                    // this.setContentPages(new ErrorView());
-                },
-            },
         ];
     }
     public setContentPages(view: View) {
