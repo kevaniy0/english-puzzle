@@ -9,17 +9,20 @@ import View from './view/view';
 import LoginView from './view/main/login/login';
 import GreetingView from './view/main/greeting/greeting';
 import GameView from './view/main/game/game';
+import FooterView from './view/footer/footer';
 
 class App {
     private container: ElementCreator<'div'>;
     public router: Router;
     public header: Header | null;
     public main: MainView | null;
+    public footer: FooterView | null;
     constructor() {
         this.container = new ElementCreator({ tag: 'div', className: ['container'] });
 
         this.header = null;
         this.main = null;
+        this.footer = null;
         const routes: Route[] = this.createRoutes();
         this.router = new Router(routes);
 
@@ -39,6 +42,9 @@ class App {
             this.main = new MainView(new LoginView(this.router));
         }
         container.append(this.main.getViewHtml());
+
+        this.footer = new FooterView();
+        container.append(this.footer.getViewHtml());
     }
 
     public createRoutes(): Route[] {
