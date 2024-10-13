@@ -2,9 +2,11 @@ import View from '../../../view';
 import './statistic.scss';
 // import storage from '../../../../services/storage-service';
 import {
+    art,
     audioIcon,
     audioLoader,
     continueButton,
+    info,
     knownField,
     knownTitle,
     sentenceItem,
@@ -20,14 +22,21 @@ import storage from '../../../../services/storage-service';
 type Callback = (event: Event) => void;
 
 class StatisticView extends View {
+    info: HTMLParagraphElement;
+    image: HTMLImageElement;
+    audioAndLabel: [HTMLAudioElement, HTMLSpanElement][] = [];
     knownField: ElementCreator<'div'>;
     unknownField: ElementCreator<'div'>;
     continueButton: ElementCreator<'button'>;
+    statsWrapper: ElementCreator<'div'>;
     constructor(onClickContinue: Callback) {
         super(statisticComponent);
         this.continueButton = this.createContinueButton(onClickContinue);
         this.knownField = this.createSentencesField(knownField);
         this.unknownField = this.createSentencesField(unknownField);
+        this.image = this.createImage();
+        this.info = this.createInfo();
+        this.statsWrapper = this.createWrapper();
         this.configureView();
     }
 
@@ -40,6 +49,20 @@ class StatisticView extends View {
     private createSentencesField(params: ElementParams<'div'>) {
         const field = new ElementCreator(params);
         return field;
+    }
+    private createWrapper(): ElementCreator<'div'> {
+        const wrapper = new ElementCreator(sentencesWrapper);
+        return wrapper;
+    }
+
+    private createImage(): HTMLImageElement {
+        const image = new ElementCreator(art);
+        return image.getElement();
+    }
+
+    private createInfo(): HTMLParagraphElement {
+        const artInfo = new ElementCreator(info);
+        return artInfo.getElement();
     }
 
     private onClickHideView(): void {
@@ -64,8 +87,13 @@ class StatisticView extends View {
         const span = new ElementCreator(audioIcon);
         const loader = new ElementCreator(audioLoader);
         span.getElement().append(loader.getElement());
-
+        this.audioAndLabel.push([audio, loader.getElement()]);
         span.getElement().addEventListener('click', () => {
+            this.audioAndLabel.forEach((item) => {
+                item[0].pause();
+                item[0].currentTime = 0;
+                item[1].classList.remove('audio-loader-on');
+            });
             audio.play();
             loader.getElement().classList.add('audio-loader-on');
             audio.addEventListener('ended', () => {
@@ -95,24 +123,26 @@ class StatisticView extends View {
 
             this.unknownField.getElement().append(sentence.getElement());
         });
+        this.image.src = storage.USER_DATA!.statistic.gameStats.currentPuctire;
+        this.info.textContent = `${storage.USER_DATA!.statistic.gameStats.autor}  -  "${storage.USER_DATA!.statistic.gameStats.pictureName}",  ${storage.USER_DATA!.statistic.gameStats.year}`;
     }
 
     public configureView(): void {
         const wrapper = new ElementCreator(statisticWrapper);
-
-        const statsWrapper = new ElementCreator(sentencesWrapper);
         const titleKnown = new ElementCreator(knownTitle);
         const titleUnknown = new ElementCreator(unknownTitle);
-        statsWrapper
+        this.statsWrapper
             .getElement()
             .append(
+                this.image,
+                this.info,
                 titleKnown.getElement(),
                 this.knownField.getElement(),
                 titleUnknown.getElement(),
                 this.unknownField.getElement()
             );
 
-        wrapper.getElement().append(statsWrapper.getElement(), this.continueButton.getElement());
+        wrapper.getElement().append(this.statsWrapper.getElement(), this.continueButton.getElement());
         this.view.getElement().append(wrapper.getElement());
         this.onClickHideView();
     }

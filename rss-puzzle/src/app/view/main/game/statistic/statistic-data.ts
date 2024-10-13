@@ -28,3 +28,6 @@ export const sentenceItem: ElementParams<'p'> = { tag: 'p', className: ['sentenc
 
 export const audioIcon: ElementParams<'span'> = { tag: 'span', className: ['audio-icon'] };
 export const audioLoader: ElementParams<'span'> = { tag: 'span', className: ['audio-loader'] };
+
+export const art: ElementParams<'img'> = { tag: 'img', className: ['image-art'] };
+export const info: ElementParams<'p'> = { tag: 'p', className: ['art-info'] };

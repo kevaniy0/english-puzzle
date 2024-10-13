@@ -297,7 +297,9 @@ class GameView extends View {
     private onClickResults(): void {
         if (this.onClickCard) this.gameField.removeEventListener('pointerdown', this.onClickCard);
         this.statisticView.getViewHtml().style.display = 'block';
+        this.statisticView.audioAndLabel.length = 0;
         this.statisticView.fillFields();
+        this.statisticView.statsWrapper.getElement().scrollTop = 0;
     }
 
     private onClickAutoComplete() {
@@ -722,5 +724,4 @@ class GameView extends View {
         );
     }
 }
-
 export default GameView;
