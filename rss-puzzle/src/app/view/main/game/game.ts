@@ -26,7 +26,7 @@ class GameView extends View {
     statisticView: StatisticView;
     checkDrag: GAME.CheckDrag = {
         element: null,
-        DRAX_PX: 10,
+        DRAX_PX: 5,
         startX: 0,
         startY: 0,
         currentX: 0,
@@ -102,7 +102,6 @@ class GameView extends View {
 
         for (let i = 0; i < blocks.length; i += 1) {
             blocks[i].style.backgroundSize = `${width}px ${height}px`;
-            // blocks[i].style.backgroundRepeat = 'no-repeat';
             blocks[i].style.setProperty('--after-backgroundSize', `${width}px ${height}px`);
             blocks[i].style.backgroundPosition =
                 `-${backgroundShift}px -${40 * (storage.USER_DATA!.statistic.gameStats.currentRow - 1)}px`;
@@ -162,15 +161,6 @@ class GameView extends View {
         });
     }
 
-    private resizeBackground() {
-        const field = Array.from(this.rowField.children) as HTMLElement[];
-        field.forEach((item) => {
-            (Array.from(item.children) as HTMLElement[]).forEach((card) => {
-                card.style.backgroundSize = `${this.rowField.clientWidth}px ${this.rowField.clientHeight}px`;
-            });
-        });
-    }
-
     private configureAsnwerRow() {
         const quantityClearBlocks = Array.from(this.sourceBlock.children).length;
         for (let i = 0; i < quantityClearBlocks; i += 1) {
@@ -221,7 +211,6 @@ class GameView extends View {
             this.toggleBackground();
             window.addEventListener('resize', () => {
                 calculateBlockWidth(this.rowField, arrayWords);
-                // this.resizeBackground();
             });
             if (this.buttonField.continueButton.getElement().style.display !== 'none') {
                 this.buttonField.hideButton(this.buttonField.continueButton.getElement());
@@ -380,7 +369,7 @@ class GameView extends View {
         if (!element.classList.contains('source-word')) return;
 
         this.checkDrag.element = element;
-        this.dragging = true;
+        this.dragging = false;
         this.checkDrag.startX = event.clientX;
         this.checkDrag.startY = event.clientY;
         this.checkDrag.currentX = event.clientX;
@@ -388,20 +377,20 @@ class GameView extends View {
         element.classList.add('source-word--selected');
     };
     private onPointerMove = (event: PointerEvent): void => {
-        if (!this.dragging) return;
+        if (!this.checkDrag.element) return;
         if (this.wasDraggin(event.clientX, event.clientY)) {
-            document.body.style.cursor = 'grabbing';
-            this.checkDrag.element!.style.cursor = 'grabbing';
-            this.checkDrag.currentX = event.clientX;
-            this.checkDrag.currentY = event.clientY;
-            this.checkDrag.element!.style.transform = `translate(${this.checkDrag.currentX - this.checkDrag.startX}px, ${this.checkDrag.currentY - this.checkDrag.startY}px)`;
+            this.dragging = true;
         }
+        document.body.style.cursor = 'grabbing';
+        this.checkDrag.element!.style.cursor = 'grabbing';
+        this.checkDrag.currentX = event.clientX;
+        this.checkDrag.currentY = event.clientY;
+        this.checkDrag.element!.style.transform = `translate(${this.checkDrag.currentX - this.checkDrag.startX}px, ${this.checkDrag.currentY - this.checkDrag.startY}px)`;
     };
 
     private onPointerUp = (event: PointerEvent): void => {
         if (event.pointerType === 'mouse' && event.button !== 0) return;
         if (!this.checkDrag.element) return;
-        if (!this.wasDraggin(event.clientX, event.clientY)) return;
         const target = event.target as HTMLElement;
         if (!target.classList.contains('source-word')) return;
         this.dragging = false;

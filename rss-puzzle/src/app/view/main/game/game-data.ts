@@ -34,7 +34,7 @@ export type Timer = {
 
 export type CheckDrag = {
     element: HTMLElement | null;
-    readonly DRAX_PX: 10;
+    readonly DRAX_PX: 5;
     startX: number;
     startY: number;
     currentX: number;
