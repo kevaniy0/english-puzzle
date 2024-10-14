@@ -32,7 +32,8 @@ class Router {
         if (view) {
             view.callback();
             if (window.location.pathname.slice(1) !== url) {
-                history.pushState(null, '', `/kevaniy0-JSFE2023Q4/rss-puzzle/${url}`);
+                history.pushState(null, '', `/${url}`); // webpack
+                // history.pushState(null, '', `/english-puzzle/${url}`); // gh-pages
             }
         }
     }
